@@ -4,6 +4,7 @@
       <el-menu default-active="2" class="el-menu-vertical-demo" @select="handleSelect">
         <el-submenu index="develop">
           <template slot="title">
+            <!-- <i class="iconfont novice-icon-zhinengyouhua"></i> -->
             <i class="el-icon-menu"></i>
             <span>智能开发</span>
           </template>

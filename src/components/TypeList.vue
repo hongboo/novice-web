@@ -12,25 +12,7 @@
         <el-button icon="el-icon-refresh" plain @click="list">刷新</el-button>
       </el-col>
     </el-row>
-    <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick">
-       <span class="custom-tree-node" slot-scope="{ node, data }">
-        <span>{{ node.label }}</span>
-        <span>
-          <el-button
-            type="text"
-            size="mini"
-            @click="() => append(data)">
-            Append
-          </el-button>
-          <el-button
-            type="text"
-            size="mini"
-            @click="() => remove(node, data)">
-            Delete
-          </el-button>
-        </span>
-      </span>
-    </el-tree>
+    <tree-grid :columns="columns" :data-source="dataSource" :operate="true"></tree-grid>
 
     <el-dialog :title="dialogTitle" :visible.sync="showDialog" @close="dialogClose">
       <el-form :model="form" ref="form" :rules="rules" status-icon label-width="80px">
@@ -58,48 +40,51 @@
 
 <script>
 import api from "@/api/type";
+import TreeGrid from "./treeTable/TreeGrid.vue";
 export default {
   name: "TypeList",
   props: {
     module: Object
   },
+  components: { TreeGrid },
   data() {
     return {
-        data: [{
-          label: '一级 1',
-          children: [{
-            label: '二级 1-1',
-            children: [{
-              label: '三级 1-1-1'
-            }]
-          }]
-        }, {
-          label: '一级 2',
-          children: [{
-            label: '二级 2-1',
-            children: [{
-              label: '三级 2-1-1'
-            }]
-          }, {
-            label: '二级 2-2',
-            children: [{
-              label: '三级 2-2-1'
-            }]
-          }]
-        }, {
-          label: '一级 3',
-          children: [{
-            label: '二级 3-1',
-            children: [{
-              label: '三级 3-1-1'
-            }]
-          }, {
-            label: '二级 3-2',
-            children: [{
-              label: '三级 3-2-1'
-            }]
-          }]
-        }],
+      columns: [
+        {
+          text: "显示名",
+          dataIndex: "displayAs"
+        },
+        {
+          text: "内部名称",
+          dataIndex: "name"
+        },
+        {
+          text: "服务类",
+          dataIndex: "service"
+        },
+        {
+          text: "描述",
+          dataIndex: "description"
+        }
+      ],
+      dataSource: [
+        {
+          id: 1,
+          displayAs: "测试1",
+          name: "test",
+          service: 18,
+          description: "男",
+          children: [
+            {
+              id: 2,
+              displayAs: "测试2",
+              name: "test2",
+              service: 22,
+              description: "男"
+            }
+          ]
+        }
+      ],
       loading: true,
       showDialog: false,
       dialogTitle: "",
@@ -107,7 +92,7 @@ export default {
         id: undefined,
         name: "",
         displayAs: "",
-        service:"",
+        service: "",
         description: ""
       },
       rules: {
@@ -182,11 +167,11 @@ export default {
   margin-bottom: 10px;
 }
 .custom-tree-node {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 14px;
-    padding-right: 8px;
-  }
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
 </style>
