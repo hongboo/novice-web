@@ -39,14 +39,12 @@ export default {
   computed: {
     // 格式化数据源
     data: function() {
-      let data = utils.treeToArray(
+      return utils.treeToArray(
         this.dataSource,
         null,
         null,
         this.defaultExpandAll
       );
-      console.log(data);
-      return data;
     }
   },
   methods: {

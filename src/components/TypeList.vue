@@ -12,10 +12,30 @@
         <el-button icon="el-icon-refresh" plain @click="list">刷新</el-button>
       </el-col>
     </el-row>
-    <tree-grid :columns="columns" :data-source="dataSource" :operate="true"></tree-grid>
+    <tree-grid :columns="columns" :data-source="dataBySubordinate" :operate="true"></tree-grid>
 
     <el-dialog :title="dialogTitle" :visible.sync="showDialog" @close="dialogClose">
       <el-form :model="form" ref="form" :rules="rules" status-icon label-width="80px">
+           <el-form-item label="从属类型" prop="parentId">
+             <el-cascader
+  :options="dataBySubordinate"
+  :props="parentTypeSelectProps"
+  :show-all-levels="false"
+  v-model="form.parentId"
+  clearable filterable
+  expand-trigger="hover"
+></el-cascader>
+        </el-form-item>
+          <el-form-item label="继承类型" prop="superId">
+         <el-cascader
+  :options="dataByExtends"
+  :props="superTypeSelectProps"
+  :show-all-levels="false"
+  v-model="form.superId"
+  clearable filterable
+  expand-trigger="hover"
+></el-cascader>
+        </el-form-item>
         <el-form-item label="内部名称" prop="name">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
@@ -67,29 +87,16 @@ export default {
           dataIndex: "description"
         }
       ],
-      dataSource: [
-        {
-          id: 1,
-          displayAs: "测试1",
-          name: "test",
-          service: 18,
-          description: "男",
-          children: [
-            {
-              id: 2,
-              displayAs: "测试2",
-              name: "test2",
-              service: 22,
-              description: "男"
-            }
-          ]
-        }
-      ],
-      loading: true,
+      dataBySubordinate:[],
+      dataByExtends:[],
+      subordinate: true,
+      loading: false,
       showDialog: false,
       dialogTitle: "",
       form: {
         id: undefined,
+        superId:[],
+        parentId:[],
         name: "",
         displayAs: "",
         service: "",
@@ -102,17 +109,35 @@ export default {
         displayAs: [
           { required: true, message: "显示名称不能为空", trigger: "blur" }
         ]
-      }
+      },
+      parentTypeSelectProps:{
+value:"id",
+label:"displayAs"
+      },
+      superTypeSelectProps:{
+value:"id",
+label:"displayAs"
+      },
     };
   },
   mounted() {
-    this.list();
+  this.list();
   },
   methods: {
-    list() {
-      api.list().then(response => {
-        this.data = response.data.body;
-        this.loading = false;
+    list(){
+  this.listBySubordinate();
+    this.listByExtends();
+    },
+    listBySubordinate() {
+      api.listBySubordinate(this.module.id).then(response => {
+        console.log(response)
+        this.dataBySubordinate = response.data.body;
+      });
+    },
+    listByExtends() {
+      api.listByExtends(this.module.id).then(response => {
+                console.log(response)
+        this.dataByExtends = response.data.body;
       });
     },
     remove(row) {
@@ -148,6 +173,9 @@ export default {
           return;
         }
         let form = this.form;
+        form.parentId=form.parentId.length==0?undefined:form.parentId[form.parentId.length-1];
+        form.superId=form.superId.length==0?undefined:form.superId[form.superId.length-1];
+        form.moduleId=this.module.id;
         api.createOrUpdate(form).then(response => {
           this.showDialog = false;
           this.list();

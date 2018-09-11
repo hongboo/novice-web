@@ -1,8 +1,11 @@
 import api from '@/api/index'
 
 export default {
-    list: () => {
-        return api.get({ url: '/type/list' });
+    listBySubordinate: (moduleId) => {
+        return api.get({ url: '/type/' + moduleId + '/listBySubordinate' });
+    },
+    listByExtends: (moduleId) => {
+        return api.get({ url: '/type/' + moduleId + '/listByExtends' });
     },
     createOrUpdate: (opts) => {
         return api.post({ url: '/type/createOrUpdate', data: { ...opts } });
