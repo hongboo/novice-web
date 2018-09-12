@@ -4,8 +4,8 @@
       <template scope="scope">
         <span v-if="spaceIconShow(index)" v-for="(space, levelIndex) in scope.row._level" class="ms-tree-space" :key="levelIndex"></span>
         <button style="border:0;background:transparent;outline:none;" class="button is-outlined is-primary is-small " v-if="toggleIconShow(index,scope.row)" @click="toggle(scope.$index)">
-          <i v-if="!scope.row._expanded" class="el-icon el-icon-arrow-right" aria-hidden="true"></i>
-          <i v-if="scope.row._expanded" class="el-icon el-icon-arrow-right el-table__expand-icon--expanded" aria-hidden="true"></i>
+          <i v-if="!scope.row._expanded" class="iconfont novice-icon-shuangyoujiantou-" aria-hidden="true"></i>
+          <i v-else class="iconfont novice-icon-shuangxiajiantou- el-table__expand-icon--expanded" aria-hidden="true"></i>
         </button>
         <span v-else-if="index===0" class="ms-tree-space"></span>
         {{scope.row[column.dataIndex]}}
@@ -13,13 +13,13 @@
     </el-table-column>
     <el-table-column align="left" label="操作" v-if="operate" width="260">
       <template slot-scope="scope">
-        <el-button icon="el-icon-refresh" plain>刷新</el-button>
+        <el-button type="info" icon="el-icon-edit" circle plain @click="$emit('update',scope.row)"></el-button>
+        <el-button type="danger" icon="el-icon-delete" circle plain @click="$emit('remove',scope.row)"></el-button>
       </template>
     </el-table-column>
   </el-table>
 </template>
 <script>
-// import Utils from "./js/index.js";
 import utils from "./index";
 export default {
   name: "tree-grid",
@@ -31,7 +31,7 @@ export default {
     // 这个是是否展示操作列
     operate: Boolean,
     // 是否默认展开所有树
-    defaultExpandAll: Boolean
+    expandAll: Boolean
   },
   data() {
     return {};
@@ -39,12 +39,16 @@ export default {
   computed: {
     // 格式化数据源
     data: function() {
-      return utils.treeToArray(
-        this.dataSource,
-        null,
-        null,
-        this.defaultExpandAll
-      );
+      return utils.treeToArray(this.dataSource, null, null, this.expandAll);
+    }
+  },
+  watch: {
+    expandAll: function() {
+      if (this.expandAll) {
+        this.data.forEach(row => (row._expanded = true));
+      } else {
+        this.data.forEach(row => (row._expanded = false));
+      }
     }
   },
   methods: {

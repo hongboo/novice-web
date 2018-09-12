@@ -42,7 +42,7 @@
         <el-tabs v-model="tabValue" type="card" closable @tab-remove="removeTab">
           <el-tab-pane :key="item.key" v-for="(item) in tabs" :label="item.name" :name="item.key">
             <Module v-if="item.type=='module'" @addTab="addTab" />
-            <TypeList v-if="item.type=='typeList'" @watchChild="addTab" :module="item.module" />
+            <TypeList v-if="item.type=='typeList'" @addTab="addTab" :module="item.module" />
           </el-tab-pane>
         </el-tabs>
       </el-main>

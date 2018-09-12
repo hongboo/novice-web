@@ -7,34 +7,24 @@
       </el-col>
     </el-row>
     <el-row>
-      <el-col :span="6" class="table-operate" align="left">
+      <el-col class="table-operate" align="left">
         <el-button type="primary" icon="el-icon-circle-plus" plain @click="showDialog=true;dialogTitle='创建模块'">添加</el-button>
         <el-button icon="el-icon-refresh" plain @click="list">刷新</el-button>
+        <el-button icon="iconfont novice-icon-deploymentunit" type="info" :plain="!subordinate" @click="subordinate=true"> 主从</el-button>
+        <el-button icon="iconfont novice-icon-apartment" type="info" :plain="subordinate" @click="subordinate=false"> 继承</el-button>
+        <el-button v-if="!expandAll" icon="iconfont novice-icon-colum-height" plain @click="expandAll=true"> 展开</el-button>
+        <el-button v-else icon="iconfont novice-icon-vertical-align-middl" plain @click="expandAll=false"> 收起</el-button>
       </el-col>
     </el-row>
-    <tree-grid :columns="columns" :data-source="dataBySubordinate" :operate="true"></tree-grid>
+    <tree-grid :columns="columns" :data-source="subordinate?dataBySubordinate:dataByExtends" :operate="true" :expand-all="expandAll" @remove="remove" @update="update"></tree-grid>
 
     <el-dialog :title="dialogTitle" :visible.sync="showDialog" @close="dialogClose">
       <el-form :model="form" ref="form" :rules="rules" status-icon label-width="80px">
-           <el-form-item label="从属类型" prop="parentId">
-             <el-cascader
-  :options="dataBySubordinate"
-  :props="parentTypeSelectProps"
-  :show-all-levels="false"
-  v-model="form.parentId"
-  clearable filterable
-  expand-trigger="hover"
-></el-cascader>
+        <el-form-item label="从属类型" prop="selectParentIds">
+          <el-cascader :options="dataBySubordinate" :props="typeSelectProps" v-model="form.selectParentIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
         </el-form-item>
-          <el-form-item label="继承类型" prop="superId">
-         <el-cascader
-  :options="dataByExtends"
-  :props="superTypeSelectProps"
-  :show-all-levels="false"
-  v-model="form.superId"
-  clearable filterable
-  expand-trigger="hover"
-></el-cascader>
+        <el-form-item label="继承类型" prop="selectSuperIds">
+          <el-cascader :options="dataByExtends" :props="typeSelectProps" v-model="form.selectSuperIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
         </el-form-item>
         <el-form-item label="内部名称" prop="name">
           <el-input v-model="form.name"></el-input>
@@ -60,6 +50,7 @@
 
 <script>
 import api from "@/api/type";
+import Vue from "vue";
 import TreeGrid from "./treeTable/TreeGrid.vue";
 export default {
   name: "TypeList",
@@ -69,6 +60,36 @@ export default {
   components: { TreeGrid },
   data() {
     return {
+      dataBySubordinate: [],
+      dataByExtends: [],
+      subordinate: true,
+      expandAll: false,
+      loading: false,
+      showDialog: false,
+      dialogTitle: "",
+      form: {
+        id: undefined,
+        superId: undefined,
+        selectSuperIds: [],
+        parentId: undefined,
+        selectParentIds: [],
+        name: "",
+        displayAs: "",
+        service: "",
+        description: ""
+      },
+      rules: {
+        name: [
+          { required: true, message: "内部名称不能为空", trigger: "blur" }
+        ],
+        displayAs: [
+          { required: true, message: "显示名称不能为空", trigger: "blur" }
+        ]
+      },
+      typeSelectProps: {
+        value: "id",
+        label: "displayAs"
+      },
       columns: [
         {
           text: "显示名",
@@ -86,57 +107,24 @@ export default {
           text: "描述",
           dataIndex: "description"
         }
-      ],
-      dataBySubordinate:[],
-      dataByExtends:[],
-      subordinate: true,
-      loading: false,
-      showDialog: false,
-      dialogTitle: "",
-      form: {
-        id: undefined,
-        superId:[],
-        parentId:[],
-        name: "",
-        displayAs: "",
-        service: "",
-        description: ""
-      },
-      rules: {
-        name: [
-          { required: true, message: "内部名称不能为空", trigger: "blur" }
-        ],
-        displayAs: [
-          { required: true, message: "显示名称不能为空", trigger: "blur" }
-        ]
-      },
-      parentTypeSelectProps:{
-value:"id",
-label:"displayAs"
-      },
-      superTypeSelectProps:{
-value:"id",
-label:"displayAs"
-      },
+      ]
     };
   },
   mounted() {
-  this.list();
+    this.list();
   },
   methods: {
-    list(){
-  this.listBySubordinate();
-    this.listByExtends();
+    list() {
+      this.listBySubordinate();
+      this.listByExtends();
     },
     listBySubordinate() {
       api.listBySubordinate(this.module.id).then(response => {
-        console.log(response)
         this.dataBySubordinate = response.data.body;
       });
     },
     listByExtends() {
       api.listByExtends(this.module.id).then(response => {
-                console.log(response)
         this.dataByExtends = response.data.body;
       });
     },
@@ -163,8 +151,15 @@ label:"displayAs"
         });
     },
     update(row) {
-      this.dialogTitle = "修改模块";
+      this.dialogTitle = "修改类型";
       this.form = { ...row };
+      if (row.superId) {
+        this.form.selectSuperIds = [row.superId];
+      }
+      if (row.parentId) {
+        this.form.selectParentIds = [row.parentId];
+      }
+      console.log(this.form);
       this.showDialog = true;
     },
     createOrUpdateAction() {
@@ -173,9 +168,15 @@ label:"displayAs"
           return;
         }
         let form = this.form;
-        form.parentId=form.parentId.length==0?undefined:form.parentId[form.parentId.length-1];
-        form.superId=form.superId.length==0?undefined:form.superId[form.superId.length-1];
-        form.moduleId=this.module.id;
+        form.parentId =
+          !form.selectParentIds || form.selectParentIds.length == 0
+            ? undefined
+            : form.selectParentIds[form.selectParentIds.length - 1];
+        form.superId =
+          !form.selectSuperIds || form.selectSuperIds.length == 0
+            ? undefined
+            : form.selectSuperIds[form.selectSuperIds.length - 1];
+        form.moduleId = this.module.id;
         api.createOrUpdate(form).then(response => {
           this.showDialog = false;
           this.list();

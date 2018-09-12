@@ -108,7 +108,6 @@ export default {
       this.showDialog = true;
     },
     editModule(row) {
-      console.log(row);
       this.$emit("addTab", {
         key: "typeList" + row.id,
         name: row.displayAs,
