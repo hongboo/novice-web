@@ -7,7 +7,7 @@
         <el-button icon="el-icon-refresh" plain @click="list">刷新</el-button>
       </el-col>
     </el-row>
-    <el-table :data="data" :v-loading="loading" @row-dblclick="editModule" border stripe highlight-current-row max-height="600" style="width: 100%">
+    <el-table :data="data" v-loading="loading" @row-dblclick="editModule" border stripe highlight-current-row max-height="600" style="width: 100%">
       <el-table-column prop="displayAs" align="left" label="模块显示名" width="180">
       </el-table-column>
       <el-table-column prop="name" align="left" label="模块名称" width="180">
@@ -23,7 +23,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog :title="dialogTitle" :visible.sync="showDialog" @close="dialogClose">
+    <el-dialog :title="dialogTitle" :visible.sync="showDialog" @close="dialogClose" width="40%">
       <el-form :model="form" ref="form" :rules="rules" status-icon label-width="80px">
         <el-form-item label="内部名称" prop="name">
           <el-input v-model="form.name"></el-input>
@@ -51,7 +51,7 @@ export default {
   data() {
     return {
       data: [],
-      loading: true,
+      loading: false,
       showDialog: false,
       dialogTitle: "",
       form: {
@@ -75,6 +75,7 @@ export default {
   },
   methods: {
     list() {
+      this.loading = true;
       api.list().then(response => {
         this.data = response.data.body;
         this.loading = false;

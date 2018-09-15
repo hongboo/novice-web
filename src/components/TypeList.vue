@@ -16,14 +16,14 @@
         <el-button v-else icon="iconfont novice-icon-vertical-align-middl" plain @click="expandAll=false"> 收起</el-button>
       </el-col>
     </el-row>
-    <tree-grid :columns="columns" :data-source="subordinate?dataBySubordinate:dataByExtends" :operate="true" :expand-all="expandAll" @remove="remove" @update="update"></tree-grid>
+    <tree-grid v-loading="loading" :columns="columns" :data-source="subordinate?dataBySubordinate:dataByExtends" :operate="true" :expand-all="expandAll" @remove="remove" @update="update"></tree-grid>
 
-    <el-dialog :title="dialogTitle" :visible.sync="showDialog" @close="dialogClose">
+    <el-dialog :title="dialogTitle" :visible.sync="showDialog" @close="dialogClose" width="40%">
       <el-form :model="form" ref="form" :rules="rules" status-icon label-width="80px">
-        <el-form-item label="从属类型" prop="selectParentIds">
+        <el-form-item label="从属类型" prop="selectParentIds" align="left">
           <el-cascader :options="dataBySubordinate" :props="typeSelectProps" v-model="form.selectParentIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
         </el-form-item>
-        <el-form-item label="继承类型" prop="selectSuperIds">
+        <el-form-item label="继承类型" prop="selectSuperIds" align="left">
           <el-cascader :options="dataByExtends" :props="typeSelectProps" v-model="form.selectSuperIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
         </el-form-item>
         <el-form-item label="内部名称" prop="name">
@@ -50,6 +50,7 @@
 
 <script>
 import api from "@/api/type";
+import utils from "@/components/js/utils";
 import Vue from "vue";
 import TreeGrid from "./treeTable/TreeGrid.vue";
 export default {
@@ -115,17 +116,15 @@ export default {
   },
   methods: {
     list() {
-      this.listBySubordinate();
-      this.listByExtends();
-    },
-    listBySubordinate() {
-      api.listBySubordinate(this.module.id).then(response => {
-        this.dataBySubordinate = response.data.body;
-      });
-    },
-    listByExtends() {
-      api.listByExtends(this.module.id).then(response => {
-        this.dataByExtends = response.data.body;
+      this.loading = true;
+      let promise = [
+        api.listBySubordinate(this.module.id),
+        api.listByExtends(this.module.id)
+      ];
+      Promise.all(promise).then(responseArray => {
+        this.dataBySubordinate = responseArray[0].data.body;
+        this.dataByExtends = responseArray[1].data.body;
+        this.loading = false;
       });
     },
     remove(row) {
@@ -153,13 +152,20 @@ export default {
     update(row) {
       this.dialogTitle = "修改类型";
       this.form = { ...row };
+      delete this.form.children;
+      delete this.form._parent;
       if (row.superId) {
-        this.form.selectSuperIds = [row.superId];
+        this.form.selectSuperIds = utils.findTreePathByArray(
+          row.superId,
+          this.dataByExtends
+        );
       }
       if (row.parentId) {
-        this.form.selectParentIds = [row.parentId];
+        this.form.selectParentIds = utils.findTreePathByArray(
+          row.parentId,
+          this.dataBySubordinate
+        );
       }
-      console.log(this.form);
       this.showDialog = true;
     },
     createOrUpdateAction() {
@@ -168,15 +174,10 @@ export default {
           return;
         }
         let form = this.form;
-        form.parentId =
-          !form.selectParentIds || form.selectParentIds.length == 0
-            ? undefined
-            : form.selectParentIds[form.selectParentIds.length - 1];
-        form.superId =
-          !form.selectSuperIds || form.selectSuperIds.length == 0
-            ? undefined
-            : form.selectSuperIds[form.selectSuperIds.length - 1];
+        form.parentId = utils.findLastByArray(form.selectParentIds);
+        form.superId = utils.findLastByArray(form.selectSuperIds);
         form.moduleId = this.module.id;
+        console.log(form);
         api.createOrUpdate(form).then(response => {
           this.showDialog = false;
           this.list();

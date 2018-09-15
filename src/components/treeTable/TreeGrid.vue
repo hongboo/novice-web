@@ -1,5 +1,5 @@
 <template>
-  <el-table :data="data" border style="width: 100%" :row-style="showTr">
+  <el-table :data="data"  border style="width: 100%" :row-style="showTr">
     <el-table-column align="left" v-for="(column, index) in columns" :key="column.dataIndex" :label="column.text" :type="column.type">
       <template scope="scope">
         <span v-if="spaceIconShow(index)" v-for="(space, levelIndex) in scope.row._level" class="ms-tree-space" :key="levelIndex"></span>
@@ -30,7 +30,7 @@ export default {
     dataSource: Array,
     // 这个是是否展示操作列
     operate: Boolean,
-    // 是否默认展开所有树
+    // 是否展开所有树
     expandAll: Boolean
   },
   data() {
