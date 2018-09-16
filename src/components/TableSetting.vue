@@ -1,23 +1,27 @@
 <template>
 
   <div>
+     <el-row>
+      <el-col align="left">
+        <h1>{{table.name}} ({{table.id}})/ {{table.displayAs}}</h1>
+      </el-col>
+    </el-row>
     <el-row>
       <el-col :span="6" class="table-operate" align="left">
-        <el-button type="primary" icon="el-icon-circle-plus" plain @click="showDialog=true;dialogTitle='创建模块'">添加</el-button>
+        <el-button type="primary" icon="el-icon-circle-plus" plain @click="showDialog=true;dialogTitle='创建字段'">添加</el-button>
         <el-button icon="el-icon-refresh" plain @click="list">刷新</el-button>
       </el-col>
     </el-row>
-    <el-table :data="data" v-loading="loading" @row-dblclick="editModule" border stripe highlight-current-row max-height="600" style="width: 100%">
-      <el-table-column prop="displayAs" align="left" label="模块显示名" width="180">
+    <el-table size="small" :data="data" v-loading="loading" @row-dblclick="update" border stripe highlight-current-row max-height="600" style="width: 100%">
+      <el-table-column prop="name" align="left" label="字段名" width="180">
       </el-table-column>
-      <el-table-column prop="name" align="left" label="模块名称" width="180">
+      <el-table-column prop="displayAs" align="left" label="显示名" width="180">
       </el-table-column>
-      <el-table-column prop="description" align="left" label="描述" show-overflow-tooltip>
+      <el-table-column prop="wrapper" align="left" label="类型" show-overflow-tooltip>
       </el-table-column>
       <el-table-column align="left" label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-setting" circle plain @click="editModule(scope.row)"></el-button>
-          <el-button type="info" icon="el-icon-edit" circle plain @click="update(scope.row)"></el-button>
+          <el-button type="primary" icon="el-icon-edit" circle plain @click="update(scope.row)"></el-button>
           <el-button type="danger" icon="el-icon-delete" circle plain @click="remove(scope.row)"></el-button>
         </template>
       </el-table-column>
@@ -48,6 +52,9 @@
 import api from "@/api/module";
 export default {
   name: "Module",
+   props: {
+    table: Object
+  },
   data() {
     return {
       data: [],
@@ -75,6 +82,7 @@ export default {
   },
   methods: {
     list() {
+      console.log(this.table)
       this.loading = true;
       api.list().then(response => {
         this.data = response.data.body;
@@ -107,14 +115,6 @@ export default {
       this.dialogTitle = "修改模块";
       this.form = { ...row };
       this.showDialog = true;
-    },
-    editModule(row) {
-      this.$emit("addTab", {
-        key: "module-" + row.id,
-        name: row.displayAs,
-        type: "table",
-        module: { ...row }
-      });
     },
     createOrUpdateAction() {
       this.$refs["form"].validate(valid => {

@@ -8,23 +8,23 @@
     </el-row>
     <el-row>
       <el-col class="table-operate" align="left">
-        <el-button type="primary" icon="el-icon-circle-plus" plain @click="showDialog=true;dialogTitle='创建模块'">添加</el-button>
+        <el-button type="primary" icon="el-icon-circle-plus" plain @click="showDialog=true;dialogTitle='创建表'">添加</el-button>
         <el-button icon="el-icon-refresh" plain @click="list">刷新</el-button>
-        <el-button icon="iconfont novice-icon-deploymentunit" type="info" :plain="!subordinate" @click="subordinate=true"> 主从</el-button>
-        <el-button icon="iconfont novice-icon-apartment" type="info" :plain="subordinate" @click="subordinate=false"> 继承</el-button>
-        <el-button v-if="!expandAll" icon="iconfont novice-icon-colum-height" plain @click="expandAll=true"> 展开</el-button>
-        <el-button v-else icon="iconfont novice-icon-vertical-align-middl" plain @click="expandAll=false"> 收起</el-button>
+        <el-button icon="iconfont novice-icon-deploymentunit" type="info" :plain="!subordinate" @click="subordinate=true">主从</el-button>
+        <el-button icon="iconfont novice-icon-apartment" type="info" :plain="subordinate" @click="subordinate=false">继承</el-button>
+        <el-button v-if="!expandAll" icon="iconfont novice-icon-colum-height" plain @click="expandAll=true">展开</el-button>
+        <el-button v-else icon="iconfont novice-icon-vertical-align-middl" plain @click="expandAll=false">收起</el-button>
       </el-col>
     </el-row>
-    <tree-grid v-loading="loading" :columns="columns" :data-source="subordinate?dataBySubordinate:dataByExtends" :operate="true" :expand-all="expandAll" @remove="remove" @update="update"></tree-grid>
+    <tree-grid v-loading="loading" double-click-name="addTab" :columns="treeColumns" :data-source="subordinate?dataBySubordinate:dataByExtends" :operateData="operateData" :expand-all="expandAll" @remove="remove" @update="update" @addTab="addTab"></tree-grid>
 
     <el-dialog :title="dialogTitle" :visible.sync="showDialog" @close="dialogClose" width="40%">
       <el-form :model="form" ref="form" :rules="rules" status-icon label-width="80px">
-        <el-form-item label="从属类型" prop="selectParentIds" align="left">
-          <el-cascader :options="dataBySubordinate" :props="typeSelectProps" v-model="form.selectParentIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
+        <el-form-item label="从属" prop="selectParentIds" align="left">
+          <el-cascader :options="dataBySubordinate" :props="tableSelectProps" v-model="form.selectParentIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
         </el-form-item>
-        <el-form-item label="继承类型" prop="selectSuperIds" align="left">
-          <el-cascader :options="dataByExtends" :props="typeSelectProps" v-model="form.selectSuperIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
+        <el-form-item label="继承" prop="selectSuperIds" align="left">
+          <el-cascader :options="dataByExtends" :props="tableSelectProps" v-model="form.selectSuperIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
         </el-form-item>
         <el-form-item label="内部名称" prop="name">
           <el-input v-model="form.name"></el-input>
@@ -49,12 +49,12 @@
 </template>
 
 <script>
-import api from "@/api/type";
+import api from "@/api/table";
 import utils from "@/components/js/utils";
 import Vue from "vue";
 import TreeGrid from "./treeTable/TreeGrid.vue";
 export default {
-  name: "TypeList",
+  name: "Table",
   props: {
     module: Object
   },
@@ -87,11 +87,11 @@ export default {
           { required: true, message: "显示名称不能为空", trigger: "blur" }
         ]
       },
-      typeSelectProps: {
+      tableSelectProps: {
         value: "id",
         label: "displayAs"
       },
-      columns: [
+      treeColumns: [
         {
           text: "显示名",
           dataIndex: "displayAs"
@@ -108,6 +108,11 @@ export default {
           text: "描述",
           dataIndex: "description"
         }
+      ],
+      operateData: [
+        { type: "primary", icon: "el-icon-setting", methodName: "addTab" },
+        { type: "info", icon: "el-icon-edit", methodName: "update" },
+        { type: "danger", icon: "el-icon-delete", methodName: "remove" }
       ]
     };
   },
@@ -150,7 +155,7 @@ export default {
         });
     },
     update(row) {
-      this.dialogTitle = "修改类型";
+      this.dialogTitle = "修改表";
       this.form = { ...row };
       delete this.form.children;
       delete this.form._parent;
@@ -177,7 +182,6 @@ export default {
         form.parentId = utils.findLastByArray(form.selectParentIds);
         form.superId = utils.findLastByArray(form.selectSuperIds);
         form.moduleId = this.module.id;
-        console.log(form);
         api.createOrUpdate(form).then(response => {
           this.showDialog = false;
           this.list();
@@ -187,6 +191,17 @@ export default {
     dialogClose() {
       this.$refs["form"].resetFields();
       this.form = {};
+    },
+    addTab(row) {
+      let table = { ...row };
+      delete table.children;
+      delete table._parent;
+      this.$emit("addTab", {
+        key: "module-table-" + table.id,
+        name: table.displayAs,
+        type: "tableSetting",
+        selectTable: table
+      });
     }
   }
 };

@@ -1,5 +1,5 @@
 <template>
-  <el-table :data="data"  border style="width: 100%" :row-style="showTr">
+  <el-table :data="data" border style="width: 100%" :row-style="showTr" @row-dblclick="doubleClick">
     <el-table-column align="left" v-for="(column, index) in columns" :key="column.dataIndex" :label="column.text" :type="column.type">
       <template scope="scope">
         <span v-if="spaceIconShow(index)" v-for="(space, levelIndex) in scope.row._level" class="ms-tree-space" :key="levelIndex"></span>
@@ -11,10 +11,9 @@
         {{scope.row[column.dataIndex]}}
       </template>
     </el-table-column>
-    <el-table-column align="left" label="操作" v-if="operate" width="260">
+    <el-table-column align="left" label="操作" v-if="operateData" width="260">
       <template slot-scope="scope">
-        <el-button type="info" icon="el-icon-edit" circle plain @click="$emit('update',scope.row)"></el-button>
-        <el-button type="danger" icon="el-icon-delete" circle plain @click="$emit('remove',scope.row)"></el-button>
+        <el-button v-for="(data,index) in operateData" :type="data.type" :icon="data.icon" circle plain @click="$emit(data.methodName,scope.row)" :key="index"></el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -28,10 +27,12 @@ export default {
     columns: Array,
     // 这是数据源
     dataSource: Array,
-    // 这个是是否展示操作列
-    operate: Boolean,
     // 是否展开所有树
-    expandAll: Boolean
+    expandAll: Boolean,
+    //操作列设置
+    operateData: Array,
+    //行双击调用的方法名
+    doubleClickName: String
   },
   data() {
     return {};
@@ -74,7 +75,11 @@ export default {
     toggleIconShow(index, record) {
       return index === 0 && record.children && record.children.length > 0;
     },
-    handleDelete() {}
+    doubleClick(row) {
+      if (this.doubleClickName) {
+        this.$emit(this.doubleClickName, row);
+      }
+    }
   }
 };
 </script>
