@@ -17,7 +17,7 @@
       </el-table-column>
       <el-table-column prop="displayAs" align="left" label="显示名" width="180">
       </el-table-column>
-      <el-table-column prop="wrapper" align="left" label="类型" show-overflow-tooltip>
+      <el-table-column prop="wrapper" align="left" label="类型">
       </el-table-column>
       <el-table-column align="left" label="操作">
         <template slot-scope="scope">
@@ -29,14 +29,11 @@
 
     <el-dialog :title="dialogTitle" :visible.sync="showDialog" @close="dialogClose" width="40%">
       <el-form :model="form" ref="form" :rules="rules" status-icon label-width="80px">
-        <el-form-item label="内部名称" prop="name">
+        <el-form-item label="字段名" prop="name">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
-        <el-form-item label="显示名称" prop="displayAs">
+        <el-form-item label="显示名" prop="displayAs">
           <el-input v-model="form.displayAs"></el-input>
-        </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="form.description" type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入描述"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -49,9 +46,9 @@
 </template>
 
 <script>
-import api from "@/api/module";
+import api from "@/api/column";
 export default {
-  name: "Module",
+  name: "TableSetting",
    props: {
     table: Object
   },
@@ -64,15 +61,14 @@ export default {
       form: {
         id: undefined,
         name: "",
-        displayAs: "",
-        description: ""
+        displayAs: ""
       },
       rules: {
         name: [
-          { required: true, message: "内部名称不能为空", trigger: "blur" }
+          { required: true, message: "字段名不能为空", trigger: "blur" }
         ],
         displayAs: [
-          { required: true, message: "显示名称不能为空", trigger: "blur" }
+          { required: true, message: "显示名不能为空", trigger: "blur" }
         ]
       }
     };
@@ -82,9 +78,8 @@ export default {
   },
   methods: {
     list() {
-      console.log(this.table)
       this.loading = true;
-      api.list().then(response => {
+      api.list(this.table.id).then(response => {
         this.data = response.data.body;
         this.loading = false;
       });
@@ -112,7 +107,7 @@ export default {
         });
     },
     update(row) {
-      this.dialogTitle = "修改模块";
+      this.dialogTitle = "修改字段";
       this.form = { ...row };
       this.showDialog = true;
     },
@@ -122,6 +117,7 @@ export default {
           return;
         }
         let form = this.form;
+        form.tableId=this.table.id;
         api.createOrUpdate(form).then(response => {
           this.showDialog = false;
           this.list();
@@ -135,9 +131,3 @@ export default {
   }
 };
 </script>
-
-<style>
-.table-operate {
-  margin-bottom: 10px;
-}
-</style>
