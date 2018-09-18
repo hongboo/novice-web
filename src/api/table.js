@@ -2,10 +2,10 @@ import api from '@/api/index'
 
 export default {
     listBySubordinate: (moduleId) => {
-        return api.get({ url: '/table/' + moduleId + '/listBySubordinate' });
+        return api.get({ url: '/table/listBySubordinate', params: { moduleId: moduleId } });
     },
     listByExtends: (moduleId) => {
-        return api.get({ url: '/table/' + moduleId + '/listByExtends' });
+        return api.get({ url: '/table/listByExtends', params: { moduleId: moduleId } });
     },
     createOrUpdate: (opts) => {
         return api.post({ url: '/table/createOrUpdate', data: { ...opts } });

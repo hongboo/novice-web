@@ -9,5 +9,8 @@ export default {
     },
     delete: (id) => {
         return api.get({ url: '/column/' + id + '/delete' });
-    }
+    },
+    listWrapper: () => {
+        return api.get({ url: '/column/listWrapper' });
+    },
 }

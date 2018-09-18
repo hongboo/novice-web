@@ -8,8 +8,8 @@
     </el-row>
     <el-row>
       <el-col :span="6" class="table-operate" align="left">
-        <el-button type="primary" icon="el-icon-circle-plus" plain @click="showDialog=true;dialogTitle='创建字段'">添加</el-button>
-        <el-button icon="el-icon-refresh" plain @click="list">刷新</el-button>
+        <el-button type="primary" icon="el-icon-circle-plus" size="small" plain @click="showDialog=true;dialogTitle='创建字段'">添加</el-button>
+        <el-button icon="el-icon-refresh" plain @click="list" size="small">刷新</el-button>
       </el-col>
     </el-row>
     <el-table size="small" :data="data" v-loading="loading" @row-dblclick="update" border stripe highlight-current-row max-height="600" style="width: 100%">
@@ -21,8 +21,8 @@
       </el-table-column>
       <el-table-column align="left" label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" circle plain @click="update(scope.row)"></el-button>
-          <el-button type="danger" icon="el-icon-delete" circle plain @click="remove(scope.row)"></el-button>
+          <el-button type="primary" icon="el-icon-edit" size="small" circle plain @click="update(scope.row)"></el-button>
+          <el-button type="danger" icon="el-icon-delete" size="small" circle plain @click="remove(scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -34,6 +34,16 @@
         </el-form-item>
         <el-form-item label="显示名" prop="displayAs">
           <el-input v-model="form.displayAs"></el-input>
+        </el-form-item>
+           <el-form-item label="类型" prop="wrapper" align="left">
+          <el-select v-model="form.wrapper" filterable>
+    <el-option
+      v-for="item in wrappers"
+      :key="item.key"
+      :label="item.name"
+      :value="item.key">
+    </el-option>
+  </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -49,32 +59,34 @@
 import api from "@/api/column";
 export default {
   name: "TableSetting",
-   props: {
+  props: {
     table: Object
   },
   data() {
     return {
       data: [],
+      wrappers: [],
       loading: false,
       showDialog: false,
       dialogTitle: "",
       form: {
         id: undefined,
         name: "",
-        displayAs: ""
+        displayAs: "",
+        wrapper: "com.novice.framework.dm.wrapper.StringWrapper"
       },
       rules: {
-        name: [
-          { required: true, message: "字段名不能为空", trigger: "blur" }
-        ],
+        name: [{ required: true, message: "字段名不能为空", trigger: "blur" }],
         displayAs: [
           { required: true, message: "显示名不能为空", trigger: "blur" }
-        ]
+        ],
+        wrapper: [{ required: true, message: "类型不能为空", trigger: "blur" }]
       }
     };
   },
   mounted() {
     this.list();
+    this.listWrapper();
   },
   methods: {
     list() {
@@ -82,6 +94,11 @@ export default {
       api.list(this.table.id).then(response => {
         this.data = response.data.body;
         this.loading = false;
+      });
+    },
+    listWrapper() {
+      api.listWrapper().then(response => {
+        this.wrappers = response.data.body;
       });
     },
     remove(row) {
@@ -117,7 +134,7 @@ export default {
           return;
         }
         let form = this.form;
-        form.tableId=this.table.id;
+        form.tableId = this.table.id;
         api.createOrUpdate(form).then(response => {
           this.showDialog = false;
           this.list();
@@ -126,7 +143,7 @@ export default {
     },
     dialogClose() {
       this.$refs["form"].resetFields();
-      this.form = {};
+      this.form = {wrapper:"com.novice.framework.dm.wrapper.StringWrapper"};
     }
   }
 };
