@@ -28,7 +28,7 @@
 <script>
 import Module from "@/components/Module.vue";
 import Table from "@/components/Table.vue";
-import TableSetting  from "@/components/TableSetting.vue";
+import TableSetting from "@/components/TableSetting.vue";
 export default {
   name: "work",
   components: {
