@@ -15,9 +15,18 @@
           </el-col>
         </el-row>
         <el-table size="small" :data="data" v-loading="loading" @row-dblclick="update" border stripe highlight-current-row max-height="600" style="width: 100%">
-          <el-table-column prop="name" align="left" label="字段名" width="180">
+            <el-table-column
+      label=""
+      width="50">
+      <template slot-scope="scope">
+         <i v-if="scope.row.override" class="iconfont novice-icon-dian icon-override"></i>
+         <i v-else-if="scope.row.superColumnId" class="iconfont novice-icon-dian icon-extends"></i>
+         <i v-else class="iconfont novice-icon-dian icon-normal"></i>
+      </template>
+    </el-table-column>
+          <el-table-column prop="name" align="left" label="字段名">
           </el-table-column>
-          <el-table-column prop="displayAs" align="left" label="显示名" width="180">
+          <el-table-column prop="displayAs" align="left" label="显示名">
           </el-table-column>
           <el-table-column prop="wrapperDisplay" align="left" label="类型">
           </el-table-column>
@@ -89,7 +98,7 @@ export default {
         id: undefined,
         name: "",
         displayAs: "",
-        wrapper: "com.novice.framework.dm.wrapper.StringWrapper"
+        wrapper: "com.novice.framework.datamodel.wrapper.StringWrapper"
       },
       rules: {
         name: [{ required: true, message: "字段名不能为空", trigger: "blur" }],
@@ -123,15 +132,13 @@ export default {
       });
     },
     findWrapperDisplay(wrapper) {
-      debugger;
-
       for (const key in this.wrappers) {
         const element = this.wrappers[key];
         if (element.key === wrapper) {
           return element.name;
         }
       }
-      return key;
+      return wrapper;
     },
     remove(row) {
       this.$confirm("是否确认删除?", "提示", {
@@ -175,8 +182,26 @@ export default {
     },
     dialogClose() {
       this.$refs["form"].resetFields();
-      this.form = { wrapper: "com.novice.framework.dm.wrapper.StringWrapper" };
+      this.form = {
+        wrapper: "com.novice.framework.datamodel.wrapper.StringWrapper"
+      };
     }
   }
 };
 </script>
+<style>
+.icon-normal {
+  color: rgb(16, 230, 16);
+  font-size: 18px;
+}
+
+.icon-override {
+  color: red;
+  font-size: 18px;
+}
+
+.icon-extends {
+  color: yellow;
+  font-size: 18px;
+}
+</style>

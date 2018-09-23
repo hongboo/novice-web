@@ -16,6 +16,6 @@
 </style>
 
 <style lang="less">
-@import url("//at.alicdn.com/t/font_831453_tg1giu0hoe8.css");
+@import url("//at.alicdn.com/t/font_831453_zrmsoqkf3ic.css");
 </style>
 
