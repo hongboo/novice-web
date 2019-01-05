@@ -1,8 +1,8 @@
 import api from '@/api/index'
 
 export default {
-    list: (tableId) => {
-        return api.get({ url: '/column/list', params: { tableId: tableId } });
+    list: (typeId) => {
+        return api.get({ url: '/column/list', params: { typeId: typeId } });
     },
     createOrUpdate: (opts) => {
         return api.post({ url: '/column/createOrUpdate', data: { ...opts } });
