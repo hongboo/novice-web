@@ -3,7 +3,7 @@
   <div>
     <el-row>
       <el-col align="left">
-        <h1>{{table.name}} ({{table.id}})/ {{table.displayAs}}</h1>
+        <h1>{{type.name}} ({{type.id}})/ {{type.displayAs}}</h1>
       </el-col>
     </el-row>
     <el-tabs v-model="selectTab">
@@ -82,9 +82,9 @@
 <script>
 import api from "@/api/column";
 export default {
-  name: "TableSetting",
+  name: "TypeSetting",
   props: {
-    table: Object
+    type: Object
   },
   data() {
     return {
@@ -116,7 +116,7 @@ export default {
   methods: {
     list() {
       this.loading = true;
-      api.list(this.table.id).then(response => {
+      api.list(this.type.id).then(response => {
         let that = this;
         let data = response.data.body;
         data.forEach(value => {
@@ -173,7 +173,7 @@ export default {
           return;
         }
         let form = this.form;
-        form.tableId = this.table.id;
+        form.typeId = this.type.id;
         api.createOrUpdate(form).then(response => {
           this.showDialog = false;
           this.list();

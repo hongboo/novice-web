@@ -15,9 +15,9 @@
       <el-main>
         <el-tabs v-if="selectTab" v-model="selectTab" type="card" closable @tab-remove="removeTab">
           <el-tab-pane :key="item.key" v-for="(item) in tabs" :label="item.name" :name="item.key">
-            <Module v-if="item.type=='module'" @addTab="addTab" />
-            <Table v-if="item.type=='table'" @addTab="addTab" :module="item.module" />
-            <TableSetting v-if="item.type=='tableSetting'" :table="item.selectTable" />
+            <Module v-if="item.type==='module'" @addTab="addTab" />
+            <Type v-if="item.type==='type'" @addTab="addTab" :module="item.module" />
+            <TypeSetting v-if="item.type==='typeSetting'" :type="item.selectType" />
           </el-tab-pane>
         </el-tabs>
       </el-main>
@@ -27,14 +27,14 @@
 </template>
 <script>
 import Module from "@/components/Module.vue";
-import Table from "@/components/Table.vue";
-import TableSetting from "@/components/TableSetting.vue";
+import Type from "@/components/Type.vue";
+import TypeSetting from "@/components/TypeSetting.vue";
 export default {
   name: "work",
   components: {
     Module,
-    Table,
-    TableSetting
+    Type,
+    TypeSetting
   },
   data() {
     return {
@@ -107,6 +107,7 @@ export default {
           return;
         }
       }
+      debugger
       this.tabs.push(tab);
       this.selectTab = tab.key;
     },

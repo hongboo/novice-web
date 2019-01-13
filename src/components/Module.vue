@@ -112,7 +112,7 @@ export default {
       this.$emit("addTab", {
         key: "module-" + row.id,
         name: row.displayAs,
-        type: "table",
+        type: "type",
         module: { ...row }
       });
     },

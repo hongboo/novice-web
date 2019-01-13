@@ -21,10 +21,10 @@
     <el-dialog :title="dialogTitle" :visible.sync="showDialog" @close="dialogClose" width="40%">
       <el-form :model="form" ref="form" :rules="rules" status-icon label-width="80px">
         <el-form-item label="从属" prop="selectParentIds" align="left">
-          <el-cascader :options="dataBySubordinate" :props="tableSelectProps" v-model="form.selectParentIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
+          <el-cascader :options="dataBySubordinate" :props="typeSelectProps" v-model="form.selectParentIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
         </el-form-item>
         <el-form-item label="继承" prop="selectSuperIds" align="left">
-          <el-cascader :options="dataByExtends" :props="tableSelectProps" v-model="form.selectSuperIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
+          <el-cascader :options="dataByExtends" :props="typeSelectProps" v-model="form.selectSuperIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
         </el-form-item>
         <el-form-item label="内部名称" prop="name">
           <el-input v-model="form.name"></el-input>
@@ -49,12 +49,12 @@
 </template>
 
 <script>
-import api from "@/api/table";
+import api from "@/api/type";
 import utils from "@/components/js/utils";
 import Vue from "vue";
 import TreeGrid from "./treeTable/TreeGrid.vue";
 export default {
-  name: "Table",
+  name: "Type",
   props: {
     module: Object
   },
@@ -87,7 +87,7 @@ export default {
           { required: true, message: "显示名称不能为空", trigger: "blur" }
         ]
       },
-      tableSelectProps: {
+      typeSelectProps: {
         value: "id",
         label: "displayAs"
       },
@@ -193,14 +193,14 @@ export default {
       this.form = {};
     },
     addTab(row) {
-      let table = { ...row };
-      delete table.children;
-      delete table._parent;
+      let type = { ...row };
+      delete type.children;
+      delete type._parent;
       this.$emit("addTab", {
-        key: "module-table-" + table.id,
-        name: table.displayAs,
-        type: "tableSetting",
-        selectTable: table
+        key: "module-type-" + type.id,
+        name: type.displayAs,
+        type: "typeSetting",
+        selectType: type
       });
     }
   }
