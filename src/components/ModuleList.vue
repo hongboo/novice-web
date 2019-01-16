@@ -2,41 +2,130 @@
 
   <div>
     <el-row>
-      <el-col :span="6" class="table-operate" align="left">
-        <el-button type="primary" icon="el-icon-circle-plus" plain @click="showDialog=true;dialogTitle='创建模块'">添加</el-button>
-        <el-button icon="el-icon-refresh" plain @click="list">刷新</el-button>
+      <el-col
+        :span="6"
+        class="table-operate"
+        align="left"
+      >
+        <el-button
+          type="primary"
+          icon="el-icon-circle-plus"
+          plain
+          @click="showDialog=true;dialogTitle='创建模块'"
+        >添加</el-button>
+        <el-button
+          icon="el-icon-refresh"
+          plain
+          @click="list"
+        >刷新</el-button>
       </el-col>
     </el-row>
-    <el-table :data="data" v-loading="loading" @row-dblclick="editModule" border stripe highlight-current-row max-height="600" style="width: 100%">
-      <el-table-column prop="displayAs" align="left" label="模块显示名" width="180">
+    <el-table
+      :data="data"
+      v-loading="loading"
+      @row-dblclick="editModule"
+      border
+      stripe
+      highlight-current-row
+      max-height="600"
+      style="width: 100%"
+    >
+      <el-table-column
+        prop="displayAs"
+        align="left"
+        label="模块显示名"
+        width="180"
+      >
       </el-table-column>
-      <el-table-column prop="name" align="left" label="模块名称" width="180">
+      <el-table-column
+        prop="name"
+        align="left"
+        label="模块名称"
+        width="180"
+      >
       </el-table-column>
-      <el-table-column prop="description" align="left" label="描述" show-overflow-tooltip>
+      <el-table-column
+        prop="description"
+        align="left"
+        label="描述"
+        show-overflow-tooltip
+      >
       </el-table-column>
-      <el-table-column align="left" label="操作">
+      <el-table-column
+        align="left"
+        label="操作"
+      >
         <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-setting" circle plain @click="editModule(scope.row)"></el-button>
-          <el-button type="info" icon="el-icon-edit" circle plain @click="update(scope.row)"></el-button>
-          <el-button type="danger" icon="el-icon-delete" circle plain @click="remove(scope.row)"></el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-setting"
+            circle
+            plain
+            @click="editModule(scope.row)"
+          ></el-button>
+          <el-button
+            type="info"
+            icon="el-icon-edit"
+            circle
+            plain
+            @click="update(scope.row)"
+          ></el-button>
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            circle
+            plain
+            @click="remove(scope.row)"
+          ></el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <el-dialog :title="dialogTitle" :visible.sync="showDialog" @close="dialogClose" width="40%">
-      <el-form :model="form" ref="form" :rules="rules" status-icon label-width="80px">
-        <el-form-item label="内部名称" prop="name">
+    <el-dialog
+      :title="dialogTitle"
+      :visible.sync="showDialog"
+      @close="dialogClose"
+      width="40%"
+    >
+      <el-form
+        :model="form"
+        ref="form"
+        :rules="rules"
+        status-icon
+        label-width="80px"
+      >
+        <el-form-item
+          label="内部名称"
+          prop="name"
+        >
           <el-input v-model="form.name"></el-input>
         </el-form-item>
-        <el-form-item label="显示名称" prop="displayAs">
+        <el-form-item
+          label="显示名称"
+          prop="displayAs"
+        >
           <el-input v-model="form.displayAs"></el-input>
         </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="form.description" type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入描述"></el-input>
+        <el-form-item
+          label="描述"
+          prop="description"
+        >
+          <el-input
+            v-model="form.description"
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4}"
+            placeholder="请输入描述"
+          ></el-input>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="createOrUpdateAction">确 定</el-button>
+      <div
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button
+          type="primary"
+          @click="createOrUpdateAction"
+        >确 定</el-button>
         <el-button @click="showDialog = false">取 消</el-button>
       </div>
     </el-dialog>
@@ -47,7 +136,7 @@
 <script>
 import api from "@/api/module";
 export default {
-  name: "Module",
+  name: "ModuleList",
   data() {
     return {
       data: [],

@@ -13,7 +13,7 @@ export default new Router({
      {
       path: '/admin',
       name: 'admin',
-      component:  () => import('./views/admin/Work.vue')
+      component:  () => import('./views/Admin.vue')
     },
   ]
 })

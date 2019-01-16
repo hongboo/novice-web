@@ -1,8 +1,16 @@
 <template>
   <el-container>
     <el-aside width="200px">
-      <el-menu :default-active="active" class="el-menu-vertical-demo" @select="handleSelect">
-        <el-menu-item v-for="menu in menus" :index="menu.name" :key="menu.name">
+      <el-menu
+        :default-active="active"
+        class="el-menu-vertical-demo"
+        @select="handleSelect"
+      >
+        <el-menu-item
+          v-for="menu in menus"
+          :index="menu.name"
+          :key="menu.name"
+        >
           <i :class="menu.icon"></i>
           <span slot="title">{{menu.title}}</span>
         </el-menu-item>
@@ -13,11 +21,32 @@
 
       </el-header> -->
       <el-main>
-        <el-tabs v-if="selectTab" v-model="selectTab" type="card" closable @tab-remove="removeTab">
-          <el-tab-pane :key="item.key" v-for="(item) in tabs" :label="item.name" :name="item.key">
-            <Module v-if="item.type==='module'" @addTab="addTab" />
-            <Type v-if="item.type==='type'" @addTab="addTab" :module="item.module" />
-            <TypeSetting v-if="item.type==='typeSetting'" :type="item.selectType" />
+        <el-tabs
+          v-if="selectTab"
+          v-model="selectTab"
+          type="card"
+          closable
+          @tab-remove="removeTab"
+        >
+          <el-tab-pane
+            :key="item.key"
+            v-for="(item) in tabs"
+            :label="item.name"
+            :name="item.key"
+          >
+            <ModuleList
+              v-if="item.type==='module'"
+              @addTab="addTab"
+            />
+            <TypeList
+              v-if="item.type==='type'"
+              @addTab="addTab"
+              :module="item.module"
+            />
+            <TypeSetting
+              v-if="item.type==='typeSetting'"
+              :type="item.selectType"
+            />
           </el-tab-pane>
         </el-tabs>
       </el-main>
@@ -26,14 +55,14 @@
 
 </template>
 <script>
-import Module from "@/components/Module.vue";
-import Type from "@/components/Type.vue";
+import ModuleList from "@/components/ModuleList.vue";
+import TypeList from "@/components/TypeList.vue";
 import TypeSetting from "@/components/TypeSetting.vue";
 export default {
-  name: "work",
+  name: "Admin",
   components: {
-    Module,
-    Type,
+    ModuleList,
+    TypeList,
     TypeSetting
   },
   data() {
@@ -107,7 +136,6 @@ export default {
           return;
         }
       }
-      debugger
       this.tabs.push(tab);
       this.selectTab = tab.key;
     },

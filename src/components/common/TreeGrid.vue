@@ -1,25 +1,71 @@
 <template>
-  <el-table :data="data" border style="width: 100%" :row-style="showTr" @row-dblclick="doubleClick">
-    <el-table-column align="left" v-for="(column, index) in columns" :key="column.dataIndex" :label="column.text" :type="column.type">
+  <el-table
+    :data="data"
+    border
+    style="width: 100%"
+    :row-style="showTr"
+    @row-dblclick="doubleClick"
+  >
+    <el-table-column
+      align="left"
+      v-for="(column, index) in columns"
+      :key="column.dataIndex"
+      :label="column.text"
+      :type="column.type"
+    >
       <template scope="scope">
-        <span v-if="spaceIconShow(index)" v-for="(space, levelIndex) in scope.row._level" class="ms-tree-space" :key="levelIndex"></span>
-        <button style="border:0;background:transparent;outline:none;" class="button is-outlined is-primary is-small " v-if="toggleIconShow(index,scope.row)" @click="toggle(scope.$index)">
-          <i v-if="!scope.row._expanded" class="iconfont novice-icon-shuangyoujiantou-" aria-hidden="true"></i>
-          <i v-else class="iconfont novice-icon-shuangxiajiantou- el-table__expand-icon--expanded" aria-hidden="true"></i>
+        <span
+          v-for="(space, levelIndex) in scope.row._level"
+          class="ms-tree-space"
+          :key="levelIndex"
+        ></span>
+        <button
+          style="border:0;background:transparent;outline:none;"
+          class="button is-outlined is-primary is-small "
+          v-if="toggleIconShow(index,scope.row)"
+          @click="toggle(scope.$index)"
+        >
+          <i
+            v-if="!scope.row._expanded"
+            class="iconfont novice-icon-shuangyoujiantou-"
+            aria-hidden="true"
+          ></i>
+          <i
+            v-else
+            class="iconfont novice-icon-shuangxiajiantou- el-table__expand-icon--expanded"
+            aria-hidden="true"
+          ></i>
         </button>
-        <span v-else-if="index===0" class="ms-tree-space"></span>
+        <span
+          v-else-if="index===0"
+          class="ms-tree-space"
+        ></span>
         {{scope.row[column.dataIndex]}}
       </template>
     </el-table-column>
-    <el-table-column align="left" label="操作" v-if="operateData" width="260">
+    <el-table-column
+      align="left"
+      label="操作"
+      v-if="operateData"
+      width="260"
+    >
       <template slot-scope="scope">
-        <el-button v-for="(data,index) in operateData" :type="data.type" :icon="data.icon" circle plain @click="$emit(data.methodName,scope.row)" :key="index"></el-button>
+        <el-button
+          v-for="(data,index) in operateData"
+          :type="data.type"
+          :icon="data.icon"
+          circle
+          plain
+          @click="$emit(data.methodName,scope.row)"
+          :key="index"
+        ></el-button>
       </template>
     </el-table-column>
   </el-table>
 </template>
 <script>
-import utils from "./index";
+import utils from "@/util/TreeDataUtils";
+
 export default {
   name: "tree-grid",
   props: {
@@ -66,10 +112,6 @@ export default {
     toggle: function(trIndex) {
       let record = this.data[trIndex];
       record._expanded = !record._expanded;
-    },
-    // 显示层级关系的空格和图标
-    spaceIconShow(index) {
-      return index === 0;
     },
     // 点击展开和关闭的时候，图标的切换
     toggleIconShow(index, record) {

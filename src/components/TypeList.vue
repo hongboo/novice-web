@@ -7,40 +7,142 @@
       </el-col>
     </el-row>
     <el-row>
-      <el-col class="table-operate" align="left">
-        <el-button type="primary" icon="el-icon-circle-plus" plain @click="showDialog=true;dialogTitle='创建表'">添加</el-button>
-        <el-button icon="el-icon-refresh" plain @click="list">刷新</el-button>
-        <el-button icon="iconfont novice-icon-deploymentunit" type="info" :plain="!subordinate" @click="subordinate=true">主从</el-button>
-        <el-button icon="iconfont novice-icon-apartment" type="info" :plain="subordinate" @click="subordinate=false">继承</el-button>
-        <el-button v-if="!expandAll" icon="iconfont novice-icon-colum-height" plain @click="expandAll=true">展开</el-button>
-        <el-button v-else icon="iconfont novice-icon-vertical-align-middl" plain @click="expandAll=false">收起</el-button>
+      <el-col
+        class="table-operate"
+        align="left"
+      >
+        <el-button
+          type="primary"
+          icon="el-icon-circle-plus"
+          plain
+          @click="showDialog=true;dialogTitle='创建表'"
+        >添加</el-button>
+        <el-button
+          icon="el-icon-refresh"
+          plain
+          @click="list"
+        >刷新</el-button>
+        <el-button
+          icon="iconfont novice-icon-deploymentunit"
+          type="info"
+          :plain="!subordinate"
+          @click="subordinate=true"
+        >主从</el-button>
+        <el-button
+          icon="iconfont novice-icon-apartment"
+          type="info"
+          :plain="subordinate"
+          @click="subordinate=false"
+        >继承</el-button>
+        <el-button
+          v-if="!expandAll"
+          icon="iconfont novice-icon-colum-height"
+          plain
+          @click="expandAll=true"
+        >展开</el-button>
+        <el-button
+          v-else
+          icon="iconfont novice-icon-vertical-align-middl"
+          plain
+          @click="expandAll=false"
+        >收起</el-button>
       </el-col>
     </el-row>
-    <tree-grid v-loading="loading" double-click-name="addTab" :columns="treeColumns" :data-source="subordinate?dataBySubordinate:dataByExtends" :operateData="operateData" :expand-all="expandAll" @remove="remove" @update="update" @addTab="addTab"></tree-grid>
+    <tree-grid
+      v-loading="loading"
+      double-click-name="addTab"
+      :columns="treeColumns"
+      :data-source="subordinate?dataBySubordinate:dataByExtends"
+      :operateData="operateData"
+      :expand-all="expandAll"
+      @remove="remove"
+      @update="update"
+      @addTab="addTab"
+    ></tree-grid>
 
-    <el-dialog :title="dialogTitle" :visible.sync="showDialog" @close="dialogClose" width="40%">
-      <el-form :model="form" ref="form" :rules="rules" status-icon label-width="80px">
-        <el-form-item label="从属" prop="selectParentIds" align="left">
-          <el-cascader :options="dataBySubordinate" :props="typeSelectProps" v-model="form.selectParentIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
+    <el-dialog
+      :title="dialogTitle"
+      :visible.sync="showDialog"
+      @close="dialogClose"
+      width="40%"
+    >
+      <el-form
+        :model="form"
+        ref="form"
+        :rules="rules"
+        status-icon
+        label-width="80px"
+      >
+        <el-form-item
+          label="从属"
+          prop="selectParentIds"
+          align="left"
+        >
+          <el-cascader
+            :options="dataBySubordinate"
+            :props="typeSelectProps"
+            v-model="form.selectParentIds"
+            :show-all-levels="false"
+            change-on-select
+            clearable
+            filterable
+            expand-trigger="hover"
+          ></el-cascader>
         </el-form-item>
-        <el-form-item label="继承" prop="selectSuperIds" align="left">
-          <el-cascader :options="dataByExtends" :props="typeSelectProps" v-model="form.selectSuperIds" :show-all-levels="false" change-on-select clearable filterable expand-trigger="hover"></el-cascader>
+        <el-form-item
+          label="继承"
+          prop="selectSuperIds"
+          align="left"
+        >
+          <el-cascader
+            :options="dataByExtends"
+            :props="typeSelectProps"
+            v-model="form.selectSuperIds"
+            :show-all-levels="false"
+            change-on-select
+            clearable
+            filterable
+            expand-trigger="hover"
+          ></el-cascader>
         </el-form-item>
-        <el-form-item label="内部名称" prop="name">
+        <el-form-item
+          label="内部名称"
+          prop="name"
+        >
           <el-input v-model="form.name"></el-input>
         </el-form-item>
-        <el-form-item label="显示名称" prop="displayAs">
+        <el-form-item
+          label="显示名称"
+          prop="displayAs"
+        >
           <el-input v-model="form.displayAs"></el-input>
         </el-form-item>
-        <el-form-item label="服务类" prop="service">
+        <el-form-item
+          label="服务类"
+          prop="service"
+        >
           <el-input v-model="form.server"></el-input>
         </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="form.description" type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入描述"></el-input>
+        <el-form-item
+          label="描述"
+          prop="description"
+        >
+          <el-input
+            v-model="form.description"
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4}"
+            placeholder="请输入描述"
+          ></el-input>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="createOrUpdateAction">确 定</el-button>
+      <div
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button
+          type="primary"
+          @click="createOrUpdateAction"
+        >确 定</el-button>
         <el-button @click="showDialog = false">取 消</el-button>
       </div>
     </el-dialog>
@@ -50,11 +152,11 @@
 
 <script>
 import api from "@/api/type";
-import utils from "@/components/js/utils";
+import utils from "@/util/TreeDataUtils";
 import Vue from "vue";
-import TreeGrid from "./treeTable/TreeGrid.vue";
+import TreeGrid from "@/components/common/TreeGrid.vue";
 export default {
-  name: "Type",
+  name: "TypeList",
   props: {
     module: Object
   },
