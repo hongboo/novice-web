@@ -9,17 +9,15 @@
     <el-tabs v-model="selectTab">
       <el-tab-pane
         label="字段设置"
-        name="column"
+        name="field"
       >
-        <column-list :type="type"></column-list>
+        <field-list :type="type"></field-list>
       </el-tab-pane>
       <el-tab-pane
         label="视图设置"
         name="view"
       >
-        <el-row>
-          视图设置
-        </el-row>
+         <view-list :type="type"></view-list>
       </el-tab-pane>
       <el-tab-pane
         label="业务设置"
@@ -42,18 +40,20 @@
 </template>
 
 <script>
-import ColumnList from "@/components/ColumnList.vue";
+import FieldList from "@/components/FieldList";
+import ViewList from "@/components/ViewList";
 export default {
   name: "TypeSetting",
   components: {
-    ColumnList
+    FieldList,
+    ViewList
   },
   props: {
     type: Object
   },
   data() {
     return {
-      selectTab: "column"
+      selectTab: "field"
     };
   },
   mounted() {},

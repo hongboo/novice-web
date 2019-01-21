@@ -152,9 +152,9 @@
 </template>
 
 <script>
-import api from "@/api/column";
+import api from "@/api/field";
 export default {
-  name: "ColumnSetting",
+  name: "FieldList",
   props: {
     type: Object
   },
