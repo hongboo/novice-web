@@ -15,7 +15,7 @@
           type="primary"
           icon="el-icon-circle-plus"
           plain
-          @click="showDialog=true;dialogTitle='创建表'"
+          @click="showDialog=true;dialogTitle='创建类型'"
         >添加</el-button>
         <el-button
           icon="el-icon-refresh"
@@ -257,7 +257,7 @@ export default {
         });
     },
     update(row) {
-      this.dialogTitle = "修改表";
+      this.dialogTitle = "修改类型";
       this.form = { ...row };
       delete this.form.children;
       delete this.form._parent;
