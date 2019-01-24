@@ -1,11 +1,23 @@
 <template>
   <div>
+
+<el-dialog title="收货地址" :visible.sync="dialogTableVisible">
+  <el-table :data="gridData">
+    <el-table-column property="date" label="日期" width="150"></el-table-column>
+    <el-table-column property="name" label="姓名" width="200"></el-table-column>
+    <el-table-column property="address" label="地址"></el-table-column>
+  </el-table>
+</el-dialog>
+
+
+
     <el-table
       :show-header="false"
       :data="list"
       @row-dblclick="update"
       stripe
       style="width: 100%"
+      @row-contextmenu="functionMenu"
     >
       <el-table-column
         label=""
@@ -116,6 +128,14 @@
         <el-button @click="showDialog = false">取 消</el-button>
       </div>
     </el-dialog>
+
+<div class="test">
+  aaaa
+</div>
+
+
+
+
   </div>
 </template>
 
@@ -139,10 +159,42 @@ export default {
         displayAs: [
           { required: true, message: "显示名称不能为空", trigger: "blur" }
         ]
-      }
+      },
+
+dialogTableVisible:false,
+ gridData: [{
+          date: '2016-05-02',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+          date: '2016-05-04',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+          date: '2016-05-01',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+          date: '2016-05-03',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }],
+
+
+
+
     };
   },
   methods: {
+    functionMenu(row, event) {
+      
+      event.preventDefault();
+      // this.dialogTableVisible=!this.dialogTableVisible;
+      let test = document.querySelector('.test');
+      test.style.display = 'block'
+      test.style.top = event.clientY + 'px'
+      test.style.left = event.clientX + 'px'
+    },
     create() {
       this.dialogTitle = "创建视图";
       this.showDialog = true;
@@ -206,4 +258,13 @@ export default {
 };
 </script>
 
+<style>
+.test {
+    width: 100px;
+    height: 200px;
+    position: absolute;
+    border: 1px solid;
+    display: none;
+}
+</style>
 
