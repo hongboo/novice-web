@@ -1,23 +1,13 @@
 <template>
   <div>
 
-<el-dialog title="收货地址" :visible.sync="dialogTableVisible">
-  <el-table :data="gridData">
-    <el-table-column property="date" label="日期" width="150"></el-table-column>
-    <el-table-column property="name" label="姓名" width="200"></el-table-column>
-    <el-table-column property="address" label="地址"></el-table-column>
-  </el-table>
-</el-dialog>
-
-
-
     <el-table
+      size="small"
       :show-header="false"
       :data="list"
       @row-dblclick="update"
       stripe
       style="width: 100%"
-      @row-contextmenu="functionMenu"
     >
       <el-table-column
         label=""
@@ -79,134 +69,22 @@
         </template>
       </el-table-column>
     </el-table>
-
-    <el-dialog
-      :title="dialogTitle"
-      :visible.sync="showDialog"
-      @close="dialogClose"
-      width="40%"
-    >
-      <el-form
-        :model="form"
-        ref="form"
-        :rules="rules"
-        status-icon
-        label-width="80px"
-      >
-        <el-form-item
-          label="内部名称"
-          prop="name"
-        >
-          <el-input v-model="form.name"></el-input>
-        </el-form-item>
-        <el-form-item
-          label="显示名称"
-          prop="displayAs"
-        >
-          <el-input v-model="form.displayAs"></el-input>
-        </el-form-item>
-        <el-form-item
-          label="描述"
-          prop="description"
-        >
-          <el-input
-            v-model="form.description"
-            type="textarea"
-            :autosize="{ minRows: 2, maxRows: 4}"
-            placeholder="请输入描述"
-          ></el-input>
-        </el-form-item>
-      </el-form>
-      <div
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button
-          type="primary"
-          @click="createOrUpdateAction"
-        >确 定</el-button>
-        <el-button @click="showDialog = false">取 消</el-button>
-      </div>
-    </el-dialog>
-
-<div class="test">
-  aaaa
-</div>
-
-
-
-
   </div>
 </template>
 
 <script>
 import api from "@/api/view";
 export default {
-  name: "ViewList",
+  name: "ViewTable",
   props: {
-    list: Array,
-    typeId: undefined
+    list: Array
   },
   data() {
-    return {
-      showDialog: false,
-      dialogTitle: "修改视图",
-      form: {},
-      rules: {
-        name: [
-          { required: true, message: "内部名称不能为空", trigger: "blur" }
-        ],
-        displayAs: [
-          { required: true, message: "显示名称不能为空", trigger: "blur" }
-        ]
-      },
-
-dialogTableVisible:false,
- gridData: [{
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }],
-
-
-
-
-    };
+    return {};
   },
   methods: {
-    functionMenu(row, event) {
-      
-      event.preventDefault();
-      // this.dialogTableVisible=!this.dialogTableVisible;
-      let test = document.querySelector('.test');
-      test.style.display = 'block'
-      test.style.top = event.clientY + 'px'
-      test.style.left = event.clientX + 'px'
-    },
-    create() {
-      this.dialogTitle = "创建视图";
-      this.showDialog = true;
-    },
     update(row) {
-      this.dialogTitle = "修改视图";
-      this.form = { ...row };
-      this.showDialog = true;
-    },
-    dialogClose() {
-      this.$refs["form"].resetFields();
-      this.form = {};
+      console.log(row);
     },
     remove(row) {
       if (row.superId && !row.override) {
@@ -236,35 +114,9 @@ dialogTableVisible:false,
             message: "已取消"
           });
         });
-    },
-    createOrUpdateAction() {
-      this.$refs["form"].validate(valid => {
-        if (!valid) {
-          return;
-        }
-        let form = this.form;
-        form.typeId = this.typeId;
-        if (form.superId) {
-          form.override = true;
-        }
-        api.createOrUpdate(form).then(response => {
-          this.showDialog = false;
-          this.$emit("list");
-        });
-      });
     }
   },
   created() {}
 };
 </script>
-
-<style>
-.test {
-    width: 100px;
-    height: 200px;
-    position: absolute;
-    border: 1px solid;
-    display: none;
-}
-</style>
 

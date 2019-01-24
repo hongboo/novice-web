@@ -9,18 +9,21 @@
       >
         <el-button
           type="primary"
+          size="small"
           icon="el-icon-circle-plus"
           plain
           @click="showDialog=true;dialogTitle='创建模块'"
         >添加</el-button>
         <el-button
           icon="el-icon-refresh"
+          size="small"
           plain
           @click="list"
         >刷新</el-button>
       </el-col>
     </el-row>
     <el-table
+      size="small"
       :data="data"
       v-loading="loading"
       @row-dblclick="editModule"
@@ -58,6 +61,7 @@
         <template slot-scope="scope">
           <el-button
             type="primary"
+            size="small"
             icon="el-icon-setting"
             circle
             plain
@@ -65,6 +69,7 @@
           ></el-button>
           <el-button
             type="info"
+            size="small"
             icon="el-icon-edit"
             circle
             plain
@@ -72,6 +77,7 @@
           ></el-button>
           <el-button
             type="danger"
+            size="small"
             icon="el-icon-delete"
             circle
             plain

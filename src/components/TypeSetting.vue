@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <el-row>
+    <el-row class="tab-title">
       <el-col align="left">
-        <h1>{{type.name}} ({{type.id}})/ {{type.displayAs}}</h1>
+        {{type.name}} ({{type.id}})/ {{type.displayAs}}
       </el-col>
     </el-row>
     <el-tabs v-model="selectTab">
@@ -17,7 +17,7 @@
         label="视图设置"
         name="view"
       >
-         <view-list :type="type"></view-list>
+        <view-list :type="type"></view-list>
       </el-tab-pane>
       <el-tab-pane
         label="业务设置"

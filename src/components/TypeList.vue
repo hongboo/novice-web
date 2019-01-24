@@ -1,9 +1,9 @@
 <template>
 
   <div>
-    <el-row>
+    <el-row class="tab-title">
       <el-col align="left">
-        <h1>{{module.name}} / {{module.displayAs}}</h1>
+        {{module.name}} / {{module.displayAs}}
       </el-col>
     </el-row>
     <el-row>
@@ -13,23 +13,27 @@
       >
         <el-button
           type="primary"
+          size="small"
           icon="el-icon-circle-plus"
           plain
           @click="showDialog=true;dialogTitle='创建类型'"
         >添加</el-button>
         <el-button
           icon="el-icon-refresh"
+          size="small"
           plain
           @click="list"
         >刷新</el-button>
         <el-button
           icon="iconfont novice-icon-deploymentunit"
+          size="small"
           type="info"
           :plain="!subordinate"
           @click="subordinate=true"
         >主从</el-button>
         <el-button
           icon="iconfont novice-icon-apartment"
+          size="small"
           type="info"
           :plain="subordinate"
           @click="subordinate=false"
@@ -37,12 +41,14 @@
         <el-button
           v-if="!expandAll"
           icon="iconfont novice-icon-colum-height"
+          size="small"
           plain
           @click="expandAll=true"
         >展开</el-button>
         <el-button
           v-else
           icon="iconfont novice-icon-vertical-align-middl"
+          size="small"
           plain
           @click="expandAll=false"
         >收起</el-button>
@@ -154,7 +160,7 @@
 import api from "@/api/type";
 import utils from "@/util/TreeDataUtils";
 import Vue from "vue";
-import TreeGrid from "@/components/common/TreeGrid.vue";
+import TreeGrid from "@/components/common/TreeGrid";
 export default {
   name: "TypeList",
   props: {

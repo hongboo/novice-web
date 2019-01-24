@@ -1,5 +1,6 @@
 <template>
   <el-table
+    :size="size||'small'"
     :data="data"
     border
     style="width: 100%"
@@ -54,6 +55,7 @@
           v-for="(data,index) in operateData"
           :type="data.type"
           :icon="data.icon"
+          :size="size||'small'"
           circle
           plain
           @click="$emit(data.methodName,scope.row)"
@@ -78,7 +80,8 @@ export default {
     //操作列设置
     operateData: Array,
     //行双击调用的方法名
-    doubleClickName: String
+    doubleClickName: String,
+    size: String
   },
   data() {
     return {};

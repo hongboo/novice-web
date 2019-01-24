@@ -11,8 +11,10 @@
           icon="el-icon-circle-plus"
           size="small"
           plain
-          @click="create"
-        >添加</el-button>
+          @click="create(item.key)"
+          v-for="(item,index) in viewTypeList"
+          :key="index"
+        >添加{{item.name}}</el-button>
         <el-button
           icon="el-icon-refresh"
           plain
@@ -23,28 +25,21 @@
     </el-row>
     <el-collapse v-model="activeNames">
       <el-collapse-item
-        title="列表视图"
-        name="list"
+        :title="`${item.name}视图`"
+        :name="item.key"
+        v-for="(item,index) in viewTypeList"
+        :key="index"
       >
         <view-table
-          :list="listViews"
+          :list="data[item.key]"
           :typeId="type.id"
-          ref="listTable"
-          @list="list"
-        ></view-table>
-      </el-collapse-item>
-      <el-collapse-item
-        title="详情视图"
-        name="detail"
-      >
-        <view-table
-          :list="detailViews"
-          :typeId="type.id"
-          ref="detailTable"
+          :viewType="item.key"
+          v-if="data[item.key]"
           @list="list"
         ></view-table>
       </el-collapse-item>
     </el-collapse>
+
   </div>
 </template>
 
@@ -59,24 +54,37 @@ export default {
   },
   data() {
     return {
-      activeNames: ["list", "detail"],
-      listViews: [],
-      detailViews: []
+      viewTypeList: [
+        { key: "List", name: "列表" },
+        { key: "Detail", name: "详情" }
+      ],
+      activeNames: [],
+      data: {}
     };
   },
   methods: {
     list() {
       api.listGroupByViewType(this.type.id).then(res => {
-        this.listViews = res.data.body.list;
-        this.detailViews = res.data.body.detail;
+        for (const key in this.viewTypeList) {
+          let e = this.viewTypeList[key].key;
+          this.$set(this.data, e, res.data.body[e]);
+        }
       });
     },
-    create() {
-      this.$refs["listTable"].create();
+    create(viewType) {
+      console.log(viewType);
     }
   },
   created() {
     this.list();
+  },
+  mounted() {
+    let that = this;
+    setTimeout(() => {
+      for (const key in that.viewTypeList) {
+        that.activeNames.push(that.viewTypeList[key].key);
+      }
+    }, 1);
   }
 };
 </script>
