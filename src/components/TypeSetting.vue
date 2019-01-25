@@ -60,19 +60,3 @@ export default {
   methods: {}
 };
 </script>
-<style>
-.icon-normal {
-  color: rgb(16, 230, 16);
-  font-size: 18px;
-}
-
-.icon-override {
-  color: red;
-  font-size: 18px;
-}
-
-.icon-extends {
-  color: yellow;
-  font-size: 18px;
-}
-</style>

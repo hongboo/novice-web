@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view />
+    <router-view/>
   </div>
 </template>
 
@@ -24,6 +24,20 @@
 }
 div.el-table--small {
   font-size: 14px;
+}
+.icon-normal {
+  color: rgb(16, 230, 16);
+  font-size: 18px;
+}
+
+.icon-override {
+  color: red;
+  font-size: 18px;
+}
+
+.icon-extends {
+  color: yellow;
+  font-size: 18px;
 }
 </style>
 
