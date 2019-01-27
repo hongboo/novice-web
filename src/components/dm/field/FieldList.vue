@@ -1,5 +1,4 @@
 <template>
-
   <div>
     <el-row>
       <el-col
@@ -9,16 +8,16 @@
       >
         <el-button
           type="primary"
-          size="small"
           icon="el-icon-circle-plus"
+          size="small"
           plain
-          @click="showDialog=true;dialogTitle='创建模块'"
+          @click="showDialog=true;dialogTitle='创建字段'"
         >添加</el-button>
         <el-button
           icon="el-icon-refresh"
-          size="small"
           plain
           @click="list"
+          size="small"
         >刷新</el-button>
       </el-col>
     </el-row>
@@ -26,7 +25,7 @@
       size="small"
       :data="data"
       v-loading="loading"
-      @row-dblclick="editModule"
+      @row-dblclick="update"
       border
       stripe
       highlight-current-row
@@ -34,24 +33,40 @@
       style="width: 100%"
     >
       <el-table-column
-        prop="displayAs"
-        align="left"
-        label="模块显示名"
-        width="180"
+        label=""
+        width="50"
       >
+        <template slot-scope="scope">
+          <i
+            v-if="scope.row.override"
+            class="iconfont novice-icon-dian icon-override"
+          ></i>
+          <i
+            v-else-if="scope.row.superId"
+            class="iconfont novice-icon-dian icon-extends"
+          ></i>
+          <i
+            v-else
+            class="iconfont novice-icon-dian icon-normal"
+          ></i>
+        </template>
       </el-table-column>
       <el-table-column
         prop="name"
         align="left"
-        label="模块名称"
-        width="180"
+        label="字段名"
       >
       </el-table-column>
       <el-table-column
-        prop="description"
+        prop="displayAs"
         align="left"
-        label="描述"
-        show-overflow-tooltip
+        label="显示名"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="wrapperDisplay"
+        align="left"
+        label="类型"
       >
       </el-table-column>
       <el-table-column
@@ -61,24 +76,18 @@
         <template slot-scope="scope">
           <el-button
             type="primary"
-            size="small"
-            icon="el-icon-setting"
-            circle
-            plain
-            @click="editModule(scope.row)"
-          ></el-button>
-          <el-button
-            type="info"
-            size="small"
             icon="el-icon-edit"
+            title="编辑"
+            size="small"
             circle
             plain
             @click="update(scope.row)"
           ></el-button>
           <el-button
             type="danger"
-            size="small"
             icon="el-icon-delete"
+            title="删除"
+            size="small"
             circle
             plain
             @click="remove(scope.row)"
@@ -86,12 +95,12 @@
         </template>
       </el-table-column>
     </el-table>
-
     <el-dialog
       :title="dialogTitle"
       :visible.sync="showDialog"
       @close="dialogClose"
       width="40%"
+      center
     >
       <el-form
         :model="form"
@@ -101,27 +110,34 @@
         label-width="80px"
       >
         <el-form-item
-          label="内部名称"
+          label="字段名"
           prop="name"
         >
           <el-input v-model="form.name"></el-input>
         </el-form-item>
         <el-form-item
-          label="显示名称"
+          label="显示名"
           prop="displayAs"
         >
           <el-input v-model="form.displayAs"></el-input>
         </el-form-item>
         <el-form-item
-          label="描述"
-          prop="description"
+          label="类型"
+          prop="wrapper"
+          align="left"
         >
-          <el-input
-            v-model="form.description"
-            type="textarea"
-            :autosize="{ minRows: 2, maxRows: 4}"
-            placeholder="请输入描述"
-          ></el-input>
+          <el-select
+            v-model="form.wrapper"
+            filterable
+          >
+            <el-option
+              v-for="item in wrappers"
+              :key="item.key"
+              :label="item.name"
+              :value="item.key"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div
@@ -136,16 +152,19 @@
       </div>
     </el-dialog>
   </div>
-
 </template>
 
 <script>
-import api from "@/api/module";
+import api from "@/api/field";
 export default {
-  name: "ModuleList",
+  name: "FieldList",
+  props: {
+    type: Object
+  },
   data() {
     return {
       data: [],
+      wrappers: [],
       loading: false,
       showDialog: false,
       dialogTitle: "",
@@ -153,30 +172,52 @@ export default {
         id: undefined,
         name: "",
         displayAs: "",
-        description: ""
+        wrapper: "com.novice.framework.datamodel.wrapper.StringWrapper"
       },
       rules: {
-        name: [
-          { required: true, message: "内部名称不能为空", trigger: "blur" }
-        ],
+        name: [{ required: true, message: "字段名不能为空", trigger: "blur" }],
         displayAs: [
-          { required: true, message: "显示名称不能为空", trigger: "blur" }
-        ]
+          { required: true, message: "显示名不能为空", trigger: "blur" }
+        ],
+        wrapper: [{ required: true, message: "类型不能为空", trigger: "blur" }]
       }
     };
-  },
-  mounted() {
-    this.list();
   },
   methods: {
     list() {
       this.loading = true;
-      api.list().then(response => {
-        this.data = response.data.body;
+      api.list(this.type.id).then(response => {
+        let that = this;
+        let data = response.data.body;
+        data.forEach(value => {
+          value.wrapperDisplay = that.findWrapperDisplay(value.wrapper);
+        });
+        this.data = data;
         this.loading = false;
       });
     },
+    listWrapper() {
+      api.listWrapper().then(response => {
+        this.wrappers = response.data.body;
+      });
+    },
+    findWrapperDisplay(wrapper) {
+      for (const key in this.wrappers) {
+        const element = this.wrappers[key];
+        if (element.key === wrapper) {
+          return element.name;
+        }
+      }
+      return wrapper;
+    },
     remove(row) {
+      if (row.superId && !row.override) {
+        this.$message({
+          type: "error",
+          message: "父类字段,无法删除"
+        });
+        return;
+      }
       this.$confirm("是否确认删除?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -199,17 +240,9 @@ export default {
         });
     },
     update(row) {
-      this.dialogTitle = "修改模块";
+      this.dialogTitle = "修改字段";
       this.form = { ...row };
       this.showDialog = true;
-    },
-    editModule(row) {
-      this.$emit("addTab", {
-        key: "module-" + row.id,
-        name: row.displayAs,
-        type: "type",
-        module: { ...row }
-      });
     },
     createOrUpdateAction() {
       this.$refs["form"].validate(valid => {
@@ -217,6 +250,10 @@ export default {
           return;
         }
         let form = this.form;
+        form.typeId = this.type.id;
+        if (form.superId) {
+          form.override = true;
+        }
         api.createOrUpdate(form).then(response => {
           this.showDialog = false;
           this.list();
@@ -225,14 +262,14 @@ export default {
     },
     dialogClose() {
       this.$refs["form"].resetFields();
-      this.form = {};
+      this.form = {
+        wrapper: "com.novice.framework.datamodel.wrapper.StringWrapper"
+      };
     }
+  },
+  mounted() {
+    this.listWrapper();
+    this.list();
   }
 };
 </script>
-
-<style>
-.table-operate {
-  margin-bottom: 10px;
-}
-</style>

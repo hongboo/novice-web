@@ -5,7 +5,7 @@
       size="small"
       :show-header="false"
       :data="list"
-      @row-dblclick="update"
+      @row-dblclick="settingUpdate"
       stripe
       style="width: 100%"
     >
@@ -52,8 +52,18 @@
         <template slot-scope="scope">
           <el-button
             type="primary"
+            icon="el-icon-setting"
+            size="small"
+            title="设置视图"
+            circle
+            plain
+            @click="settingUpdate(scope.row)"
+          ></el-button>
+          <el-button
+            type="info"
             icon="el-icon-edit"
             size="small"
+            title="编辑"
             circle
             plain
             @click="update(scope.row)"
@@ -61,6 +71,7 @@
           <el-button
             type="danger"
             icon="el-icon-delete"
+            title="删除"
             size="small"
             circle
             plain
@@ -84,13 +95,22 @@ export default {
   },
   methods: {
     update(row) {
-      console.log(row);
+      this.$emit("update", row);
+    },
+    settingUpdate(row) {
+      this.$emit("settingUpdate", row);
     },
     remove(row) {
-      if (row.superId && !row.override) {
+      let error = "";
+      if (row.system && !row.superId) {
+        error = "系统视图，无法删除";
+      } else if (row.superId && !row.override) {
+        error = "父类视图";
+      }
+      if (error) {
         this.$message({
           type: "error",
-          message: "父类视图,无法删除"
+          message: error
         });
         return;
       }
@@ -101,7 +121,8 @@ export default {
       })
         .then(() => {
           api.delete(row.id).then(response => {
-            this.$emit("list");
+            var index = this.list.indexOf(row);
+            if (index > -1) this.list.splice(index, 1);
             this.$message({
               type: "success",
               message: "删除成功!"

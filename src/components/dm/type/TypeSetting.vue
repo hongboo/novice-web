@@ -40,8 +40,8 @@
 </template>
 
 <script>
-import FieldList from "@/components/FieldList";
-import ViewList from "@/components/ViewList";
+import FieldList from "@/components/dm/field/FieldList";
+import ViewList from "@/components/dm/view/ViewList";
 export default {
   name: "TypeSetting",
   components: {

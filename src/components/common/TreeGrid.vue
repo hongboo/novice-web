@@ -56,6 +56,7 @@
           :type="data.type"
           :icon="data.icon"
           :size="size||'small'"
+          :title="data.title"
           circle
           plain
           @click="$emit(data.methodName,scope.row)"

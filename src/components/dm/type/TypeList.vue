@@ -71,6 +71,7 @@
       :visible.sync="showDialog"
       @close="dialogClose"
       width="40%"
+      center
     >
       <el-form
         :model="form"
@@ -218,9 +219,24 @@ export default {
         }
       ],
       operateData: [
-        { type: "primary", icon: "el-icon-setting", methodName: "addTab" },
-        { type: "info", icon: "el-icon-edit", methodName: "update" },
-        { type: "danger", icon: "el-icon-delete", methodName: "remove" }
+        {
+          type: "primary",
+          icon: "el-icon-setting",
+          title: "设置",
+          methodName: "addTab"
+        },
+        {
+          type: "info",
+          icon: "el-icon-edit",
+          title: "编辑",
+          methodName: "update"
+        },
+        {
+          type: "danger",
+          icon: "el-icon-delete",
+          title: "删除",
+          methodName: "remove"
+        }
       ]
     };
   },

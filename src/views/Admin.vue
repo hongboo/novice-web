@@ -55,9 +55,9 @@
 
 </template>
 <script>
-import ModuleList from "@/components/ModuleList.vue";
-import TypeList from "@/components/TypeList.vue";
-import TypeSetting from "@/components/TypeSetting.vue";
+import ModuleList from "@/components/dm/module/ModuleList";
+import TypeList from "@/components/dm/type/TypeList";
+import TypeSetting from "@/components/dm/type/TypeSetting";
 export default {
   name: "Admin",
   components: {
