@@ -1,25 +1,124 @@
 <template>
 
   <div>
-        <el-row
-      v-for="(item,index) in data"
+    <div
+      class="border field-set"
+      v-for="(item,index) in list"
       :key="index"
     >
-      {{item}}
+      <el-row class="field-set-header">
+        <el-col
+          class="field-set-title"
+          :span="6"
+        >{{item.title}}</el-col>
+        <el-col
+          class="field-set-header-button"
+          :span="8"
+          :offset="10"
+        >
+          <el-button
+            plain
+            type="info"
+            size="small"
+            @click="updateFieldSet(item)"
+          >编辑</el-button>
+          <el-button
+            type="danger"
+            plain
+            size="small"
+            @click="removeFieldSet(item)"
+          >移除</el-button>
+        </el-col>
+      </el-row>
+      <div class="field-set-content">
+        <el-row
+          :gutter="20"
+          v-for="i in getMaxRowNum(item)"
+          :key="i"
+        >
+          <el-col
+            :span="24/item.rowSize"
+            v-for="j in item.rowSize"
+            :key="j"
+          >
+            <div
+              v-if="field=getFieldFromItem(item,i,j)"
+              class="bg-purple field-item"
+            >
+              <el-col
+                :span="12"
+                class="field-item-title"
+              >{{field.displayAs}}</el-col>
+              <el-button
+                type="info"
+                icon="el-icon-close"
+                plain
+                circle
+                size="mini"
+              ></el-button>
+            </div>
+            <div
+              v-else
+              class="bg-default"
+            ></div>
+          </el-col>
+        </el-row>
+      </div>
+    </div>
+    <el-row class="add-new">
+      <el-button
+        type="primary"
+        size="small"
+        icon="el-icon-circle-plus"
+        @click.native="createFieldSet"
+      >新建区域</el-button>
     </el-row>
-    <el-button
-      type="primary"
-      size="small"
-      @click="createFieldSet"
-    >新建区域</el-button>
-    
+
     <el-dialog
-      :title="'Update'===action?'新建区域':'修改区域'"
+      :title="'Update'===action?'修改区域':'新建区域'"
       :visible.sync="showDialog"
       append-to-body
       width="50%"
       center
     >
+      <el-form
+        :model="form"
+        ref="form"
+        :rules="rules"
+        status-icon
+        label-width="80px"
+      >
+        <el-form-item
+          label="标题"
+          prop="title"
+        >
+          <el-input v-model="form.title"></el-input>
+        </el-form-item>
+        <el-form-item
+          label="边框"
+          prop="border"
+        >
+          <el-switch
+            v-model="form.border"
+            active-text="有"
+            inactive-text="无"
+          >
+          </el-switch>
+        </el-form-item>
+        <el-form-item
+          label="列数"
+          prop="rowSize"
+        >
+          <el-input-number
+            label="列数"
+            size="small"
+            v-model="form.rowSize"
+            controls-position="right"
+            :min="1"
+            :max="3"
+          ></el-input-number>
+        </el-form-item>
+      </el-form>
       <div
         slot="footer"
         class="dialog-footer"
@@ -31,7 +130,6 @@
         <el-button @click="showDialog = false">取 消</el-button>
       </div>
     </el-dialog>
-
   </div>
 </template>
 
@@ -110,7 +208,27 @@ export default {
     },
     createOrUpdateAction() {
       this.data.push(Math.random());
-      this.showDialog = false;
+      let that = this;
+      this.$refs["form"].validate(valid => {
+        if (!valid) {
+          return;
+        }
+        let tmpData = { ...that.form };
+        tmpData.name = that.form.name || Math.random().toString(36);
+        if ("Create" === that.action) {
+          tmpData.fields = [];
+          that.list.push(tmpData);
+        } else {
+          for (const key in that.list) {
+            const element = that.list[key];
+            if (element.name === tmpData.name) {
+              that.$set(that.list, key, tmpData);
+              break;
+            }
+          }
+        }
+        that.showDialog = false;
+      });
     },
     getFieldFromItem(item, rowNum, columnNum) {
       for (const key in item.fields) {
@@ -138,6 +256,10 @@ export default {
 .bg-purple {
   background: #d3dce6;
 }
+.bg-default {
+  min-height: 28px;
+  background: #ffffff;
+}
 .field-set {
   margin-top: 10px;
   .field-set-header {
@@ -155,7 +277,18 @@ export default {
   .field-set-content {
     padding: 10px 0;
   }
+  .field-item {
+    border-radius: 30px;
+    text-align: right;
+    .field-item-title {
+      text-align: right;
+      height: 28px;
+      line-height: 28px;
+    }
+  }
+}
+.add-new {
+  margin-top: 10px;
+  text-align: center;
 }
 </style>
-
-
