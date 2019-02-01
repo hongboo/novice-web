@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="view-warp">
     <el-row>
       <el-col
         :span="6"
@@ -35,6 +35,7 @@
           v-if="data[item.key]"
           @update="update"
           @settingUpdate="settingUpdate"
+          @list="list"
         ></view-table>
       </el-collapse-item>
     </el-collapse>
@@ -111,21 +112,24 @@
     </el-dialog>
 
     <el-dialog
-      title="视图设置"
+      :title="`视图设置 ${form.name}`"
       :visible.sync="showSettingDialog"
       width="60%"
+      top="9vh"
       center
     >
-      <detail-view
-        :typeId="type.id"
-        :view="form"
-        v-if="form.viewType==='Detail'"
-      ></detail-view>
-      <list-view
-        :typeId="type.id"
-        :view="form"
-        v-else-if="form.viewType==='List'"
-      ></list-view>
+      <div class="dialog-div">
+        <detail-view
+          :typeId="type.id"
+          :view="form"
+          v-if="form.viewType==='Detail'"
+        ></detail-view>
+        <list-view
+          :typeId="type.id"
+          :view="form"
+          v-else-if="form.viewType==='List'"
+        ></list-view>
+      </div>
       <div
         slot="footer"
         class="dialog-footer"
@@ -240,11 +244,23 @@ export default {
 </script>
 
 <style lang="less">
-.el-collapse-item__content {
-  padding-bottom: 0;
+.view-warp {
+  div.el-collapse-item__content {
+    padding-bottom: 0;
+  }
+  .el-collapse-item__wrap {
+    border-bottom: none;
+  }
 }
+</style>
+
+<style lang="less" scoped>
 .el-collapse {
   text-align: left;
+}
+.dialog-div {
+  height: 500px;
+  overflow-y: auto;
 }
 </style>
 

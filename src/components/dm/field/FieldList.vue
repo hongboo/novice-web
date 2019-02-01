@@ -113,7 +113,10 @@
           label="字段名"
           prop="name"
         >
-          <el-input v-model="form.name"></el-input>
+          <el-input
+            v-model="form.name"
+            :disabled="!!form.id"
+          ></el-input>
         </el-form-item>
         <el-form-item
           label="显示名"

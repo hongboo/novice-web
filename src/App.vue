@@ -17,10 +17,20 @@
 
 <style lang="less">
 @import url("//at.alicdn.com/t/font_831453_zrmsoqkf3ic.css");
+.border {
+  border-style: solid;
+  border-width: 1px 1px 1px 1px;
+  border-color: #c0c4cc;
+  padding: 10px 10px 10px 10px;
+}
 .tab-title {
   margin-bottom: 7px;
   margin-left: 10px;
   font-size: larger;
+}
+.el-dialog.el-dialog--center {
+  box-shadow: #8b9c90 0px 2px 100px 5px;
+  border-radius: 10px;
 }
 div.el-table--small {
   font-size: 14px;

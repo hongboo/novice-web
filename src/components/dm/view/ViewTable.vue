@@ -121,8 +121,7 @@ export default {
       })
         .then(() => {
           api.delete(row.id).then(response => {
-            var index = this.list.indexOf(row);
-            if (index > -1) this.list.splice(index, 1);
+            this.$emit("list");
             this.$message({
               type: "success",
               message: "删除成功!"

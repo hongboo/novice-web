@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div style="margin-right:15px">
     <el-row class="item-title">设置列字段</el-row>
-    <el-row class="item-content boder">
+    <el-row class="item-content border">
       <el-checkbox-group v-model="rowFieldNames">
         <el-checkbox
           :label="item.name"
@@ -164,7 +164,7 @@
 import viewApi from "@/api/view";
 import fieldApi from "@/api/field";
 export default {
-  name: "ListView",
+  name: "ListViewSetting",
   props: {
     typeId: String,
     view: Object
@@ -205,9 +205,28 @@ export default {
           label: field.displayAs
         });
       });
+      this.checkFieldNames("rowFieldNames");
+      this.checkFieldNames("conditionFieldNames");
     }
   },
   methods: {
+    checkFieldNames(name) {
+      if (!this[name] || this[name].length === 0) return;
+      let tmpFieldNames = [...this[name]];
+      for (var i = 0; i < tmpFieldNames.length; i++) {
+        if (!this.getField(tmpFieldNames[i])) {
+          this.$message({
+            type: "error",
+            message: tmpFieldNames[i] + " 未找到"
+          });
+          tmpFieldNames.splice(i, 1);
+          i--;
+        }
+      }
+      if (tmpFieldNames.length !== this[name].length) {
+        this[name] = tmpFieldNames;
+      }
+    },
     getField(name) {
       for (const key in this.fields) {
         const element = this.fields[key];
@@ -337,12 +356,7 @@ export default {
     margin-bottom: 9px;
   }
 }
-.boder {
-  border-style: solid;
-  border-width: 1px 1px 1px 1px;
-  border-color: #c0c4cc;
-  padding: 10px 10px 10px 10px;
-}
+
 .inner-dialog-field {
   .el-form-item {
     margin-bottom: 9px;

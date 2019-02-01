@@ -116,7 +116,10 @@
           label="内部名称"
           prop="name"
         >
-          <el-input v-model="form.name"></el-input>
+          <el-input
+            v-model="form.name"
+            :disabled="!!form.id"
+          ></el-input>
         </el-form-item>
         <el-form-item
           label="显示名称"
