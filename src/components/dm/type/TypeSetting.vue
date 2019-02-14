@@ -23,9 +23,7 @@
         label="业务设置"
         name="business"
       >
-        <el-row>
-          业务设置
-        </el-row>
+        <business-list :type="type"></business-list>
       </el-tab-pane>
       <el-tab-pane
         label="动作设置"
@@ -42,11 +40,13 @@
 <script>
 import FieldList from "@/components/dm/field/FieldList";
 import ViewList from "@/components/dm/view/ViewList";
+import BusinessList from "@/components/dm/business/BusinessList";
 export default {
   name: "TypeSetting",
   components: {
     FieldList,
-    ViewList
+    ViewList,
+    BusinessList
   },
   props: {
     type: Object

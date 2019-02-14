@@ -16,15 +16,15 @@
         <template slot-scope="scope">
           <i
             v-if="scope.row.override"
-            class="iconfont novice-icon-dian icon-override"
+            class="big-iconfont novice-icon-dian icon-override"
           ></i>
           <i
             v-else-if="scope.row.superId"
-            class="iconfont novice-icon-dian icon-extends"
+            class="big-iconfont novice-icon-dian icon-extends"
           ></i>
           <i
             v-else
-            class="iconfont novice-icon-dian icon-normal"
+            class="big-iconfont novice-icon-dian icon-normal"
           ></i>
         </template>
       </el-table-column>

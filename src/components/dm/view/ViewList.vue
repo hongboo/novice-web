@@ -114,6 +114,7 @@
     <el-dialog
       :title="`视图设置 ${form.name}`"
       :visible.sync="showSettingDialog"
+      :close-on-click-modal="false"
       width="60%"
       top="9vh"
       center
@@ -195,13 +196,13 @@ export default {
     },
     update(row) {
       this.action = "Update";
-      this.form = { ...row };
+      this.form = JSON.parse(JSON.stringify(row));
       this.showDialog = true;
     },
     settingUpdate(row) {
       this.showDialog = false;
+      this.form = JSON.parse(JSON.stringify(row));
       this.showSettingDialog = true;
-      this.form = { ...row };
     },
     saveViewSetting() {
       if (this.form.superId) {

@@ -11,7 +11,7 @@
           icon="el-icon-circle-plus"
           size="small"
           plain
-          @click="showDialog=true;dialogTitle='创建字段'"
+          @click="create"
         >添加</el-button>
         <el-button
           icon="el-icon-refresh"
@@ -54,7 +54,7 @@
       <el-table-column
         prop="name"
         align="left"
-        label="字段名"
+        label="名称"
       >
       </el-table-column>
       <el-table-column
@@ -64,9 +64,22 @@
       >
       </el-table-column>
       <el-table-column
-        prop="wrapperDisplay"
+        prop="renderer"
         align="left"
-        label="类型"
+        label="渲染器"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="viewName"
+        align="left"
+        label="视图"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="description"
+        align="left"
+        label="描述"
+        show-overflow-tooltip
       >
       </el-table-column>
       <el-table-column
@@ -92,13 +105,20 @@
             plain
             @click="remove(scope.row)"
           ></el-button>
+           <el-button
+            icon="el-icon-caret-right"
+            title="执行"
+            size="small"
+            circle
+            plain
+            @click="execute(scope.row)"
+          ></el-button>
         </template>
       </el-table-column>
     </el-table>
     <el-dialog
-      :title="dialogTitle"
+      :title="actionName==='Create'?'创建业务':'修改业务'"
       :visible.sync="showDialog"
-      @close="dialogClose"
       width="40%"
       center
     >
@@ -125,22 +145,60 @@
           <el-input v-model="form.displayAs"></el-input>
         </el-form-item>
         <el-form-item
-          label="类型"
-          prop="wrapper"
+          label="描述"
+          prop="description"
+        >
+          <el-input
+            v-model="form.description"
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4}"
+            placeholder="请输入描述"
+          ></el-input>
+        </el-form-item>
+        <el-form-item
+          label="模式"
+          prop="model"
           align="left"
         >
-          <el-select
-            v-model="form.wrapper"
-            filterable
-          >
+          <el-select v-model="form.model">
             <el-option
-              v-for="item in wrappers"
+              v-for="item in modelList"
               :key="item.key"
               :label="item.name"
               :value="item.key"
             >
             </el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item
+          label="视图"
+          prop="viewName"
+          align="left"
+        >
+          <el-select
+            v-model="form.viewName"
+            filterable
+            clearable
+          >
+            <el-option
+              v-for="item in viewNameList"
+              :key="item"
+              :label="item"
+              :value="item"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="渲染器"
+          prop="renderer"
+          align="left"
+        >
+          <el-autocomplete
+            class="inline-input"
+            v-model="form.renderer"
+            :fetch-suggestions="queryRenderer"
+          ></el-autocomplete>
         </el-form-item>
       </el-form>
       <div
@@ -158,59 +216,63 @@
 </template>
 
 <script>
-import api from "@/api/field";
-import { mapGetters } from "vuex";
+import api from "@/api/business";
 export default {
-  name: "FieldList",
+  name: "BusinessList",
   props: {
     type: Object
   },
   data() {
     return {
       data: [],
+      rendererList: [{ value: "detail" }, { value: "view" }, { value: "list" }],
+      viewNameList: ["select", "search", "list", "detail"],
+      modelList: [
+        { key: "Collection", name: "集合" },
+        { key: "Entity", name: "实例" }
+      ],
       loading: false,
       showDialog: false,
-      dialogTitle: "",
-      form: {
-        id: undefined,
-        name: "",
-        displayAs: "",
-        wrapper: "com.novice.framework.datamodel.wrapper.StringWrapper"
-      },
+      actionName: "",
+      form: {},
       rules: {
         name: [{ required: true, message: "字段名不能为空", trigger: "blur" }],
         displayAs: [
           { required: true, message: "显示名不能为空", trigger: "blur" }
-        ],
-        wrapper: [{ required: true, message: "类型不能为空", trigger: "blur" }]
+        ]
       }
     };
   },
-  computed: {
-    ...mapGetters(["wrappers"])
-  },
   methods: {
+    queryRenderer(queryString, cb) {
+      var results = queryString
+        ? this.rendererList.filter(
+            renderer =>
+              renderer.value
+                .toLowerCase()
+                .indexOf(queryString.toLowerCase()) !== -1
+          )
+        : this.rendererList;
+      cb(results);
+    },
     list() {
       this.loading = true;
       api.list(this.type.id).then(response => {
-        let that = this;
-        let data = response.data.body;
-        data.forEach(value => {
-          value.wrapperDisplay = that.findWrapperDisplay(value.wrapper);
-        });
-        this.data = data;
+        this.data = response.data.body;
         this.loading = false;
       });
     },
-    findWrapperDisplay(wrapper) {
-      let tmp = this.wrappers.find(tmp => tmp.key === wrapper);
-      return tmp ? tmp.name : wrapper;
-    },
     remove(row) {
-      if (row.superId && !row.override) {
+      let error = "";
+      if (row.system && !row.superId) {
+        error = "系统视图，无法删除";
+      } else if (row.superId && !row.override) {
+        error = "父类视图";
+      }
+      if (error) {
         this.$message({
           type: "error",
-          message: "父类字段,无法删除"
+          message: error
         });
         return;
       }
@@ -235,8 +297,19 @@ export default {
           });
         });
     },
+    create() {
+      if (this.$refs["form"]) {
+        this.$refs["form"].resetFields();
+      }
+      this.form = {};
+      this.actionName = "Create";
+      this.showDialog = true;
+    },
     update(row) {
-      this.dialogTitle = "修改字段";
+      if (this.$refs["form"]) {
+        this.$refs["form"].resetFields();
+      }
+      this.actionName = "Update";
       this.form = { ...row };
       this.showDialog = true;
     },
@@ -256,11 +329,8 @@ export default {
         });
       });
     },
-    dialogClose() {
-      this.$refs["form"].resetFields();
-      this.form = {
-        wrapper: "com.novice.framework.datamodel.wrapper.StringWrapper"
-      };
+    execute(row){
+      console.log(row);
     }
   },
   mounted() {
@@ -268,3 +338,4 @@ export default {
   }
 };
 </script>
+

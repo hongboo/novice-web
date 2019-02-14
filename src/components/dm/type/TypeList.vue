@@ -165,6 +165,7 @@ import api from "@/api/type";
 import utils from "@/util/TreeDataUtils";
 import Vue from "vue";
 import TreeGrid from "@/components/common/TreeGrid";
+import { mapActions } from "vuex";
 export default {
   name: "TypeList",
   props: {
@@ -247,6 +248,7 @@ export default {
     this.list();
   },
   methods: {
+    ...mapActions(["pushAdminTab"]),
     list() {
       this.loading = true;
       let promise = [
@@ -323,7 +325,7 @@ export default {
       let type = { ...row };
       delete type.children;
       delete type._parent;
-      this.$emit("addTab", {
+      this.pushAdminTab({
         key: "module-type-" + type.id,
         name: type.displayAs,
         type: "typeSetting",

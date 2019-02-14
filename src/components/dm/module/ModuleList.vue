@@ -148,6 +148,7 @@
 
 <script>
 import api from "@/api/module";
+import { mapActions } from "vuex";
 export default {
   name: "ModuleList",
   data() {
@@ -176,6 +177,7 @@ export default {
     this.list();
   },
   methods: {
+    ...mapActions(["pushAdminTab"]),
     list() {
       this.loading = true;
       api.list().then(response => {
@@ -213,10 +215,10 @@ export default {
       this.showDialog = true;
     },
     editModule(row) {
-      this.$emit("addTab", {
+      this.pushAdminTab({
         key: "module-" + row.id,
         name: row.displayAs,
-        type: "type",
+        type: "typeList",
         module: { ...row }
       });
     },

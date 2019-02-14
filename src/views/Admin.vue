@@ -1,8 +1,8 @@
 <template>
-  <el-container>
+  <el-container v-loading.fullscreen.lock="metaLoading">
     <el-aside width="200px">
       <el-menu
-        :default-active="active"
+        :default-active="menuActive"
         class="el-menu-vertical-demo"
         @select="handleSelect"
       >
@@ -26,25 +26,21 @@
           v-model="selectTab"
           type="card"
           closable
-          @tab-remove="removeTab"
+          @tab-remove="removeAdminTab"
         >
           <el-tab-pane
             :key="item.key"
-            v-for="(item) in tabs"
+            v-for="(item) in adminTabs"
             :label="item.name"
             :name="item.key"
           >
-            <ModuleList
-              v-if="item.type==='module'"
-              @addTab="addTab"
-            />
+            <ModuleList v-if="item.type==='module'" />
             <TypeList
-              v-if="item.type==='type'"
-              @addTab="addTab"
+              v-else-if="item.type==='typeList'"
               :module="item.module"
             />
             <TypeSetting
-              v-if="item.type==='typeSetting'"
+              v-else-if="item.type==='typeSetting'"
               :type="item.selectType"
             />
           </el-tab-pane>
@@ -58,6 +54,7 @@
 import ModuleList from "@/components/dm/module/ModuleList";
 import TypeList from "@/components/dm/type/TypeList";
 import TypeSetting from "@/components/dm/type/TypeSetting";
+import { mapGetters, mapActions } from "vuex";
 export default {
   name: "Admin",
   components: {
@@ -67,9 +64,8 @@ export default {
   },
   data() {
     return {
+      menuActive: "",
       selectTab: "",
-      tabs: [],
-      active: "",
       menus: [
         {
           name: "module",
@@ -104,76 +100,50 @@ export default {
       ]
     };
   },
-  methods: {
-    handleSelect(key) {
-      for (const i in this.tabs) {
-        const element = this.tabs[i];
-        if (key == element.key) {
-          this.selectTab = key;
-          return;
-        }
-      }
-      this.addTab({
-        key: key,
-        name: this.findMenuTitleByName(key),
-        type: key
-      });
-    },
-    findMenuTitleByName(name) {
-      for (const key in this.menus) {
-        let menu = this.menus[key];
-        if (name == menu.name) {
-          return menu.title;
-        }
-      }
-      return name;
-    },
-    addTab(tab) {
-      for (const i in this.tabs) {
-        const element = this.tabs[i];
-        if (tab.key == element.key) {
-          this.selectTab = tab.key;
-          return;
-        }
-      }
-      this.tabs.push(tab);
-      this.selectTab = tab.key;
-    },
-    removeTab(targetIndex) {
-      let tabs = this.tabs;
-      let selectTab = this.selectTab;
-      if (selectTab === targetIndex) {
-        tabs.forEach((tab, index) => {
-          if (tab.key === targetIndex) {
-            let nextTab = tabs[index + 1] || tabs[index - 1];
-            if (nextTab) {
-              selectTab = nextTab.key;
-            }
-          }
-        });
-      }
-      this.selectTab = selectTab;
-      this.tabs = tabs.filter(tab => tab.key !== targetIndex);
-    }
+  computed: {
+    ...mapGetters(["adminTabs", "adminSelectTab", "metaLoading"])
   },
   watch: {
-    selectTab: function() {
-      this.active = this.selectTab.split("-")[0];
-      sessionStorage.setItem("selectTab", this.selectTab);
+    selectTab(value) {
+      if (value !== this.adminSelectTab) {
+        this.changeAdminSelectTab(value);
+      }
     },
-    tabs: value => {
-      sessionStorage.setItem("tabs", JSON.stringify(value));
+    adminSelectTab(value) {
+      this.selectTab = value;
+      this.menuActive = value.split("-")[0];
     }
   },
+  methods: {
+    ...mapActions([
+      "pushAdminTab",
+      "removeAdminTab",
+      "changeAdminSelectTab",
+      "loadMeta"
+    ]),
+    handleSelect(key) {
+      let tab = this.adminTabs.find(tab => tab.key === key);
+      if (tab) {
+        this.changeAdminSelectTab(tab.key);
+      } else {
+        this.pushAdminTab({
+          key: key,
+          name: this.findMenuTitleByName(key),
+          type: key
+        });
+      }
+    },
+    findMenuTitleByName(name) {
+      let menu = this.menus.find(menu => name === menu.name);
+      return menu ? menu.title : name;
+    }
+  },
+  created: function() {
+    this.loadMeta(true);
+  },
   mounted: function() {
-    let tabsStr = sessionStorage.getItem("tabs");
-    if (tabsStr) {
-      this.tabs = JSON.parse(tabsStr);
-    }
-    let selectTab = sessionStorage.getItem("selectTab");
-    if (selectTab) {
-      this.selectTab = selectTab;
-    }
+    this.selectTab = this.adminSelectTab;
+    this.menuActive = this.selectTab.split("-")[0];
   }
 };
 </script>

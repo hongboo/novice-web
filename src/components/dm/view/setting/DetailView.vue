@@ -1,70 +1,16 @@
 <template>
 
   <div>
-    <div
+    <field-set-setting
       class="border field-set"
-      v-for="(item,index) in list"
+      v-for="(item,index) in view.fieldSets"
       :key="index"
+      :fieldSet="item"
+      :fields="fields"
+      @updateFieldSet="updateFieldSet"
+      @removeFieldSet="removeFieldSet"
     >
-      <el-row class="field-set-header">
-        <el-col
-          class="field-set-title"
-          :span="6"
-        >{{item.title}}</el-col>
-        <el-col
-          class="field-set-header-button"
-          :span="8"
-          :offset="10"
-        >
-          <el-button
-            plain
-            type="info"
-            size="small"
-            @click="updateFieldSet(item)"
-          >编辑</el-button>
-          <el-button
-            type="danger"
-            plain
-            size="small"
-            @click="removeFieldSet(item)"
-          >移除</el-button>
-        </el-col>
-      </el-row>
-      <div class="field-set-content">
-        <el-row
-          :gutter="20"
-          v-for="i in getMaxRowNum(item)"
-          :key="i"
-        >
-          <el-col
-            :span="24/item.rowSize"
-            v-for="j in item.rowSize"
-            :key="j"
-          >
-            <div
-              v-if="field=getFieldFromItem(item,i,j)"
-              class="bg-purple field-item"
-            >
-              <el-col
-                :span="12"
-                class="field-item-title"
-              >{{field.displayAs}}</el-col>
-              <el-button
-                type="info"
-                icon="el-icon-close"
-                plain
-                circle
-                size="mini"
-              ></el-button>
-            </div>
-            <div
-              v-else
-              class="bg-default"
-            ></div>
-          </el-col>
-        </el-row>
-      </div>
-    </div>
+    </field-set-setting>
     <el-row class="add-new">
       <el-button
         type="primary"
@@ -134,64 +80,40 @@
 </template>
 
 <script>
-import api from "@/api/view";
+import viewApi from "@/api/view";
+import fieldApi from "@/api/field";
+import FieldSetSetting from "./FieldSetSetting";
 export default {
   name: "DetailViewSetting",
+  components: { FieldSetSetting },
   props: {
     typeId: String,
     view: Object
   },
   data() {
     return {
-      data: [1, 2, 3],
-      list: [
-        {
-          name: "2321d331111111sad",
-          title: "基本信息",
-          border: true,
-          rowSize: 2,
-          fields: [
-            {
-              name: "name",
-              displayAs: "名称",
-              rowNum: 1,
-              columnNum: 1
-            }
-          ]
-        },
-        {
-          name: "32dadas",
-          title: "详细信息",
-          border: true,
-          rowSize: 3,
-          fields: [
-            {
-              name: "address",
-              displayAs: "住址",
-              rowNum: 1,
-              columnNum: 3
-            }
-          ]
-        }
-      ],
-      form: {},
+      form: {
+        rowSize: 1
+      },
       showDialog: false,
       action: "",
       rules: {
         rowSize: [{ required: true, message: "列数不能为空", trigger: "blur" }]
-      }
+      },
+      fields: []
     };
   },
-  watch: {
-    list() {
-      console.log(this.list);
-    }
-  },
+  watch: {},
   methods: {
+    getFields() {
+      fieldApi.list(this.typeId).then(res => {
+        this.fields = res.data.body;
+      });
+    },
     createFieldSet() {
       let formRef = this.$refs["form"];
       if (formRef) formRef.resetFields();
-      this.form = {};
+      this.form = { rowSize: 1 };
       this.action = "Create";
       this.showDialog = true;
     },
@@ -201,92 +123,44 @@ export default {
       this.showDialog = true;
     },
     removeFieldSet(item) {
-      let index = this.list.indexOf(item);
+      let index = this.view.fieldSets.indexOf(item);
       if (index > -1) {
-        this.list.splice(index, 1);
+        this.view.fieldSets.splice(index, 1);
       }
     },
     createOrUpdateAction() {
-      this.data.push(Math.random());
       let that = this;
       this.$refs["form"].validate(valid => {
         if (!valid) {
           return;
         }
+        if (!that.view.fieldSets) {
+          that.view.fieldSets = [];
+        }
         let tmpData = { ...that.form };
         tmpData.name = that.form.name || Math.random().toString(36);
         if ("Create" === that.action) {
           tmpData.fields = [];
-          that.list.push(tmpData);
+          that.view.fieldSets.push(tmpData);
         } else {
-          for (const key in that.list) {
-            const element = that.list[key];
+          for (const key in that.view.fieldSets) {
+            const element = that.view.fieldSets[key];
             if (element.name === tmpData.name) {
-              that.$set(that.list, key, tmpData);
+              that.$set(that.view.fieldSets, key, tmpData);
               break;
             }
           }
         }
         that.showDialog = false;
       });
-    },
-    getFieldFromItem(item, rowNum, columnNum) {
-      for (const key in item.fields) {
-        const element = item.fields[key];
-        if (element.rowNum === rowNum && element.columnNum === columnNum) {
-          return element;
-        }
-      }
-      return null;
-    },
-    getMaxRowNum(item) {
-      if (item.fields) {
-        var max = 0;
-        item.fields.forEach(field => {
-          max = Math.max(max, field.rowNum);
-        });
-        return max;
-      }
     }
   },
-  created() {}
+  created() {
+    this.getFields();
+  }
 };
 </script>
 <style lang="less" scoped>
-.bg-purple {
-  background: #d3dce6;
-}
-.bg-default {
-  min-height: 28px;
-  background: #ffffff;
-}
-.field-set {
-  margin-top: 10px;
-  .field-set-header {
-    height: 32px;
-    background-color: #eee;
-    .field-set-title {
-      height: 32px;
-      line-height: 32px;
-      padding-left: 10px;
-    }
-    .field-set-header-button {
-      text-align: right;
-    }
-  }
-  .field-set-content {
-    padding: 10px 0;
-  }
-  .field-item {
-    border-radius: 30px;
-    text-align: right;
-    .field-item-title {
-      text-align: right;
-      height: 28px;
-      line-height: 28px;
-    }
-  }
-}
 .add-new {
   margin-top: 10px;
   text-align: center;
