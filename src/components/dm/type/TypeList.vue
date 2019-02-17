@@ -255,9 +255,10 @@ export default {
         api.listBySubordinate(this.module.id),
         api.listByExtends(this.module.id)
       ];
-      Promise.all(promise).then(responseArray => {
-        this.dataBySubordinate = responseArray[0].data.body;
-        this.dataByExtends = responseArray[1].data.body;
+      Promise.all(promise).then(resultArray => {
+        if (resultArray[0].code === 1)
+          this.dataBySubordinate = resultArray[0].body;
+        if (resultArray[1].code === 1) this.dataByExtends = resultArray[1].body;
         this.loading = false;
       });
     },
@@ -268,12 +269,14 @@ export default {
         type: "warning"
       })
         .then(() => {
-          api.delete(row.id).then(response => {
-            this.list();
-            this.$message({
-              type: "success",
-              message: "删除成功!"
-            });
+          api.delete(row.id).then(result => {
+            if (result.code === 1) {
+              this.list();
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              });
+            }
           });
         })
         .catch(() => {
@@ -311,9 +314,11 @@ export default {
         form.parentId = utils.findLastByArray(form.selectParentIds);
         form.superId = utils.findLastByArray(form.selectSuperIds);
         form.moduleId = this.module.id;
-        api.createOrUpdate(form).then(response => {
-          this.showDialog = false;
-          this.list();
+        api.createOrUpdate(form).then(result => {
+          if (result.code === 1) {
+            this.showDialog = false;
+            this.list();
+          }
         });
       });
     },

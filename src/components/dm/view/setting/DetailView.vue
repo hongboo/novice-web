@@ -6,7 +6,7 @@
       v-for="(item,index) in view.fieldSets"
       :key="index"
       :fieldSet="item"
-      :fields="fields"
+      :waitFields="waitFields"
       @updateFieldSet="updateFieldSet"
       @removeFieldSet="removeFieldSet"
     >
@@ -80,14 +80,12 @@
 </template>
 
 <script>
-import viewApi from "@/api/view";
-import fieldApi from "@/api/field";
 import FieldSetSetting from "./FieldSetSetting";
+import { mapGetters } from "vuex";
 export default {
   name: "DetailViewSetting",
   components: { FieldSetSetting },
   props: {
-    typeId: String,
     view: Object
   },
   data() {
@@ -100,15 +98,29 @@ export default {
       rules: {
         rowSize: [{ required: true, message: "列数不能为空", trigger: "blur" }]
       },
-      fields: []
+      waitFields: []
     };
   },
-  watch: {},
+  computed: {
+    ...mapGetters(["loadFields"]),
+    typeFields() {
+      return this.loadFields(this.view.typeId);
+    }
+  },
+  watch: {
+    typeFields(value) {
+      this.initWaitFields();
+    }
+  },
   methods: {
-    getFields() {
-      fieldApi.list(this.typeId).then(res => {
-        this.fields = res.data.body;
+    initWaitFields() {
+      let selectFieldNames = [];
+      this.view.fieldSets.forEach(set => {
+        set.fields.forEach(field => selectFieldNames.push(field.name));
       });
+      this.waitFields = this.typeFields.filter(
+        field => selectFieldNames.indexOf(field.name) === -1
+      );
     },
     createFieldSet() {
       let formRef = this.$refs["form"];
@@ -156,7 +168,7 @@ export default {
     }
   },
   created() {
-    this.getFields();
+    this.initWaitFields();
   }
 };
 </script>

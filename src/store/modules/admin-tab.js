@@ -25,9 +25,12 @@ export default {
   },
   mutations: {
     pushAdminTab(state, newTab) {
-      state.adminTabs.push(newTab);
+      let tab = state.adminTabs.find(tab => tab.key === newTab.key);
+      if (!tab) {
+        state.adminTabs.push(newTab);
+        sessionStorage.setItem("adminTabs", JSON.stringify(state.adminTabs));
+      }
       state.adminSelectTab = newTab.key;
-      sessionStorage.setItem("adminTabs", JSON.stringify(state.adminTabs));
       sessionStorage.setItem("adminSelectTab", newTab.key);
     },
     removeAdminTab(state, key) {

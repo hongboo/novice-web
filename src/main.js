@@ -4,6 +4,8 @@ import './plugins/element.js'
 import router from './router'
 import store from './store/index'
 import './assets/iconfont.css'
+import '@/components/dm/renderer/register';
+import '@/expend/register';
 
 Vue.config.productionTip = false
 

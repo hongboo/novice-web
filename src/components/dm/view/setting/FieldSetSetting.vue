@@ -1,5 +1,5 @@
 <template>
-  <div class="border field-set">
+  <div>
     <div>
       <el-row class="field-set-header">
         <el-col
@@ -20,7 +20,10 @@
               设置<i class="el-icon-arrow-down el-icon--right"></i>
             </el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native="addFiled()">添加字段</el-dropdown-item>
+              <el-dropdown-item
+                @click.native="addFiled()"
+                :disabled="waitFields.length===0"
+              >添加字段</el-dropdown-item>
               <el-dropdown-item @click.native="$emit('updateFieldSet',fieldSet)">编辑</el-dropdown-item>
               <el-dropdown-item @click.native="$emit('removeFieldSet',fieldSet)">删除</el-dropdown-item>
             </el-dropdown-menu>
@@ -75,7 +78,7 @@
         <el-checkbox-group v-model="checkList">
           <div
             class="select-checkbox"
-            v-for="(field,index) in waitAddFields"
+            v-for="(field,index) in waitFields"
             :key="index"
           >
             <el-checkbox
@@ -104,17 +107,18 @@ export default {
   name: "FieldSetSetting",
   props: {
     fieldSet: Object,
-    fields: Array
+    waitFields: Array
   },
   data() {
     return {
-      selectedFields: [],
       showAddFieldDialog: false,
-      waitAddFields: [],
       checkList: []
     };
   },
   computed: {
+    selectedFields() {
+      return this.fieldSet.fields;
+    },
     maxRowNum() {
       var maxNum = 0;
       this.selectedFields.forEach(field => {
@@ -127,19 +131,21 @@ export default {
     }
   },
   watch: {
-    fieldSet() {
-      this.fieldSet.fields = this.fieldSet.fields || [];
-      this.selectedFields = this.fieldSet.fields;
-    },
     rowSize(value) {
       var change = false;
       let selectedFields = [];
+      let tmpSelectFields = [...this.selectedFields];
+      tmpSelectFields.sort((a, b) =>
+        a.columnNum === b.columnNum
+          ? a.rowNum - b.rowNum
+          : a.columnNum - b.columnNum
+      );
       var column = 0;
-      this.selectedFields.forEach(field => {
+      tmpSelectFields.forEach(field => {
         let tmpField = { ...field };
+        column++;
         if (field.columnNum > value) {
           change = true;
-          column++;
           tmpField.columnNum = column % value || value;
           tmpField.rowNum +=
             (column % value ? column / value : (column - 1) / value) + 1;
@@ -147,14 +153,14 @@ export default {
         selectedFields.push(tmpField);
       });
       if (change) {
-        this.selectedFields = selectedFields;
+        this.fieldSet.fields = selectedFields;
       }
     },
-    selectedFields() {
+    selectedFields(value) {
       let arr = ["01", "02", "03"];
       var change = false;
       let selectedFields = [];
-      let tmpSelectFields = [...this.selectedFields];
+      let tmpSelectFields = [...value];
       tmpSelectFields.sort((a, b) =>
         a.columnNum === b.columnNum
           ? a.rowNum - b.rowNum
@@ -174,7 +180,7 @@ export default {
         }
       });
       if (change) {
-        this.selectedFields = selectedFields;
+        this.fieldSet.fields = selectedFields;
       }
     }
   },
@@ -182,12 +188,10 @@ export default {
     saveField() {
       let newSelected = [];
       this.checkList.forEach(name => {
-        for (const key in this.waitAddFields) {
-          const element = this.waitAddFields[key];
-          if (element.name === name) {
-            newSelected.push({ ...element });
-            break;
-          }
+        let element = this.waitFields.find(field => field.name === name);
+        if (element) {
+          this.waitFields.splice(this.waitFields.indexOf(element), 1);
+          newSelected.push({ ...element });
         }
       });
       let maxField = this.getMaxField();
@@ -199,39 +203,28 @@ export default {
         let next = columnNum >= rowSize;
         columnNum = next ? 1 : columnNum + 1;
         rowNum = next ? rowNum + 1 : rowNum;
-        that.selectedFields.push({
+        that.fieldSet.fields.push({
           name: field.name,
           displayAs: field.displayAs,
           rowNum: rowNum,
-          columnNum: columnNum
+          columnNum: columnNum,
+          widget: field.widget
         });
       });
       this.showAddFieldDialog = false;
     },
     addFiled() {
-      let addedNames = [];
-      let waitAddFields = [...this.fields];
-      this.fields.forEach(field => {
-        addedNames.push(field.name);
-      });
-      this.selectedFields.forEach(field => {
-        let index = addedNames.indexOf(field.name);
-        if (index > -1) {
-          addedNames.splice(index, 1);
-          waitAddFields.splice(index, 1);
-        }
-      });
-      this.waitAddFields = waitAddFields;
       this.checkList = [];
       this.showAddFieldDialog = true;
     },
     removeField(i, j) {
-      for (const key in this.selectedFields) {
-        const element = this.selectedFields[key];
-        if (element.rowNum === i && element.columnNum === j) {
-          this.selectedFields.splice(key, 1);
-          return;
-        }
+      let element = this.fieldSet.fields.find(
+        field => field.rowNum === i && field.columnNum === j
+      );
+      if (element) {
+        this.fieldSet.fields.splice(this.fieldSet.fields.indexOf(element), 1);
+        let field = this.waitFields.find(field => field.name === element.name);
+        if (!field) this.waitFields.push(element);
       }
     },
     getFieldFromItem(rowNum, columnNum) {
@@ -256,10 +249,7 @@ export default {
       return maxField;
     }
   },
-  created() {
-    this.fieldSet.fields = this.fieldSet.fields || [];
-    this.selectedFields = this.fieldSet.fields;
-  }
+  created() {}
 };
 </script>
 <style lang="less" scoped>
@@ -282,6 +272,7 @@ export default {
 }
 .field-set {
   margin-top: 10px;
+  padding: 10px;
   .field-set-header {
     height: 32px;
     background-color: #eee;

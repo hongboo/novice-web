@@ -1,25 +1,23 @@
 <template>
-  <el-container v-loading.fullscreen.lock="metaLoading">
-    <el-aside width="200px">
-      <el-menu
-        :default-active="menuActive"
-        class="el-menu-vertical-demo"
-        @select="handleSelect"
-      >
-        <el-menu-item
-          v-for="menu in menus"
-          :index="menu.name"
-          :key="menu.name"
-        >
-          <i :class="menu.icon"></i>
-          <span slot="title">{{menu.title}}</span>
-        </el-menu-item>
-      </el-menu>
-    </el-aside>
+  <el-container v-loading.fullscreen.lock="loadStatus==='loading'">
+    <el-header></el-header>
     <el-container>
-      <!-- <el-header>
-
-      </el-header> -->
+      <el-aside width="200px">
+        <el-menu
+          :default-active="menuActive"
+          class="el-menu-vertical-demo"
+          @select="handleSelect"
+        >
+          <el-menu-item
+            v-for="menu in menus"
+            :index="menu.name"
+            :key="menu.name"
+          >
+            <i :class="menu.icon"></i>
+            <span slot="title">{{menu.title}}</span>
+          </el-menu-item>
+        </el-menu>
+      </el-aside>
       <el-main>
         <el-tabs
           v-if="selectTab"
@@ -101,7 +99,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["adminTabs", "adminSelectTab", "metaLoading"])
+    ...mapGetters(["adminTabs", "adminSelectTab", "loadStatus"])
   },
   watch: {
     selectTab(value) {
@@ -119,7 +117,7 @@ export default {
       "pushAdminTab",
       "removeAdminTab",
       "changeAdminSelectTab",
-      "loadMeta"
+      "loadMetaAsync"
     ]),
     handleSelect(key) {
       let tab = this.adminTabs.find(tab => tab.key === key);
@@ -138,13 +136,12 @@ export default {
       return menu ? menu.title : name;
     }
   },
-  created: function() {
-    this.loadMeta(true);
+  created() {
+    this.loadMetaAsync(true);
   },
-  mounted: function() {
+  mounted() {
     this.selectTab = this.adminSelectTab;
     this.menuActive = this.selectTab.split("-")[0];
   }
 };
 </script>
-

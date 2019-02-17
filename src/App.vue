@@ -9,19 +9,21 @@
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* text-align: center; */
-  /* color: #2c3e50; */
-  margin-top: 60px;
 }
 </style>
 
 <style lang="less">
 @import url("//at.alicdn.com/t/font_831453_zrmsoqkf3ic.css");
+.el-header{
+  background-color: #f1f1f1;
+}
+.el-menu{
+  height: 100%;
+}
 .border {
-  border-style: solid;
-  border-width: 1px 1px 1px 1px;
-  border-color: #c0c4cc;
-  padding: 10px 10px 10px 10px;
+  border: 1px solid #e6e6e6;
+  border-radius: 3px;
+  box-shadow: 1px 1px 1px #f1efef;
 }
 .tab-title {
   margin-bottom: 7px;

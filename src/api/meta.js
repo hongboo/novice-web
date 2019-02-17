@@ -1,10 +1,13 @@
-import api from '@/api/index'
+import api from '@/api/index';
 
 export default {
     load: () => {
         return api.get({ url: '/meta/load' });
     },
-    wrappers:() => {
-        return api.get({ url: '/meta/wrappers' });
+    dataTypes: () => {
+        return api.get({ url: '/meta/dataTypes' });
     },
+    loadEnumSync(key) {
+        return api.syncGet({ url: '/meta/' + key + '/enumValues' });
+    }
 }

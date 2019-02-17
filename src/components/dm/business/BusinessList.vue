@@ -105,12 +105,13 @@
             plain
             @click="remove(scope.row)"
           ></el-button>
-           <el-button
+          <el-button
             icon="el-icon-caret-right"
             title="执行"
             size="small"
             circle
             plain
+            :disabled="scope.row.model==='Entity'"
             @click="execute(scope.row)"
           ></el-button>
         </template>
@@ -143,6 +144,12 @@
           prop="displayAs"
         >
           <el-input v-model="form.displayAs"></el-input>
+        </el-form-item>
+        <el-form-item
+          label="标题"
+          prop="title"
+        >
+          <el-input v-model="form.title"></el-input>
         </el-form-item>
         <el-form-item
           label="描述"
@@ -196,6 +203,7 @@
         >
           <el-autocomplete
             class="inline-input"
+            clearable
             v-model="form.renderer"
             :fetch-suggestions="queryRenderer"
           ></el-autocomplete>
@@ -217,6 +225,8 @@
 
 <script>
 import api from "@/api/business";
+import { mapGetters } from "vuex";
+
 export default {
   name: "BusinessList",
   props: {
@@ -225,7 +235,6 @@ export default {
   data() {
     return {
       data: [],
-      rendererList: [{ value: "detail" }, { value: "view" }, { value: "list" }],
       viewNameList: ["select", "search", "list", "detail"],
       modelList: [
         { key: "Collection", name: "集合" },
@@ -243,6 +252,12 @@ export default {
       }
     };
   },
+  computed: {
+    ...mapGetters(["loadEnum"]),
+    rendererList() {
+      return this.loadEnum("com.novice.framework.datamodel.enums.Renderer");
+    }
+  },
   methods: {
     queryRenderer(queryString, cb) {
       var results = queryString
@@ -257,8 +272,10 @@ export default {
     },
     list() {
       this.loading = true;
-      api.list(this.type.id).then(response => {
-        this.data = response.data.body;
+      api.list(this.type.id).then(result => {
+        if (result.code === 1) {
+          this.data = result.body;
+        }
         this.loading = false;
       });
     },
@@ -282,12 +299,14 @@ export default {
         type: "warning"
       })
         .then(() => {
-          api.delete(row.id).then(response => {
-            this.list();
-            this.$message({
-              type: "success",
-              message: "删除成功!"
-            });
+          api.delete(row.id).then(result => {
+            if (result.code === 1) {
+              this.list();
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              });
+            }
           });
         })
         .catch(() => {
@@ -323,14 +342,17 @@ export default {
         if (form.superId) {
           form.override = true;
         }
-        api.createOrUpdate(form).then(response => {
-          this.showDialog = false;
-          this.list();
+        api.createOrUpdate(form).then(result => {
+          if (result.code === 1) {
+            this.showDialog = false;
+            this.list();
+          }
         });
       });
     },
-    execute(row){
-      console.log(row);
+    execute(row) {
+      let businessName = this.type.name + "@" + row.name;
+      window.open("#/?business=" + businessName);
     }
   },
   mounted() {

@@ -180,8 +180,10 @@ export default {
     ...mapActions(["pushAdminTab"]),
     list() {
       this.loading = true;
-      api.list().then(response => {
-        this.data = response.data.body;
+      api.list().then(result => {
+        if (result.code === 1) {
+          this.data = result.body;
+        }
         this.loading = false;
       });
     },
@@ -192,14 +194,16 @@ export default {
         type: "warning"
       })
         .then(() => {
-          api.delete(row.id).then(response => {
-            this.list();
-            var index = this.data.indexOf(row);
-            if (index > -1) this.data.splice(index, 1);
-            this.$message({
-              type: "success",
-              message: "删除成功!"
-            });
+          api.delete(row.id).then(result => {
+            if (result.code === 1) {
+              this.list();
+              var index = this.data.indexOf(row);
+              if (index > -1) this.data.splice(index, 1);
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              });
+            }
           });
         })
         .catch(() => {
@@ -228,9 +232,11 @@ export default {
           return;
         }
         let form = this.form;
-        api.createOrUpdate(form).then(response => {
-          this.showDialog = false;
-          this.list();
+        api.createOrUpdate(form).then(result => {
+          if (result.code === 1) {
+            this.showDialog = false;
+            this.list();
+          }
         });
       });
     },

@@ -10,7 +10,4 @@ export default {
     delete: (id) => {
         return api.get({ url: '/field/' + id + '/delete' });
     },
-    listWrapper: () => {
-        return api.get({ url: '/field/listWrapper' });
-    },
 }

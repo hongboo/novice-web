@@ -121,12 +121,10 @@
     >
       <div class="dialog-div">
         <detail-view
-          :typeId="type.id"
           :view="form"
           v-if="form.viewType==='Detail'"
         ></detail-view>
         <list-view
-          :typeId="type.id"
           :view="form"
           v-else-if="form.viewType==='List'"
         ></list-view>
@@ -180,10 +178,12 @@ export default {
   },
   methods: {
     list() {
-      api.listGroupByViewType(this.type.id).then(res => {
-        for (const i in this.viewTypeList) {
-          let key = this.viewTypeList[i].key;
-          this.$set(this.data, key, res.data.body[key]);
+      api.listGroupByViewType(this.type.id).then(result => {
+        if (result.code === 1) {
+          for (const i in this.viewTypeList) {
+            let key = this.viewTypeList[i].key;
+            this.$set(this.data, key, result.body[key]);
+          }
         }
       });
     },
@@ -208,9 +208,11 @@ export default {
       if (this.form.superId) {
         this.form.override = true;
       }
-      api.createOrUpdate(this.form).then(response => {
-        this.showSettingDialog = false;
-        this.list();
+      api.createOrUpdate(this.form).then(result => {
+        if (result.code === 1) {
+          this.showSettingDialog = false;
+          this.list();
+        }
       });
     },
     createOrUpdateAction() {
@@ -223,9 +225,11 @@ export default {
         if (form.superId) {
           form.override = true;
         }
-        api.createOrUpdate(form).then(response => {
-          this.showDialog = false;
-          this.list();
+        api.createOrUpdate(form).then(result => {
+          if (result.code === 1) {
+            this.showDialog = false;
+            this.list();
+          }
         });
       });
     }

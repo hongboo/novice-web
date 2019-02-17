@@ -64,7 +64,7 @@
       >
       </el-table-column>
       <el-table-column
-        prop="wrapperDisplay"
+        prop="dataTypeDisplay"
         align="left"
         label="类型"
       >
@@ -126,18 +126,19 @@
         </el-form-item>
         <el-form-item
           label="类型"
-          prop="wrapper"
+          prop="dataType"
           align="left"
         >
           <el-select
-            v-model="form.wrapper"
+            v-model="form.dataType"
             filterable
+            @change="changeDataType"
           >
             <el-option
-              v-for="item in wrappers"
-              :key="item.key"
-              :label="item.name"
-              :value="item.key"
+              v-for="item in dataTypes"
+              :key="item.id"
+              :label="item.displayAs"
+              :value="item.id"
             >
             </el-option>
           </el-select>
@@ -171,40 +172,41 @@ export default {
       loading: false,
       showDialog: false,
       dialogTitle: "",
-      form: {
-        id: undefined,
-        name: "",
-        displayAs: "",
-        wrapper: "com.novice.framework.datamodel.wrapper.StringWrapper"
-      },
+      form: {},
       rules: {
         name: [{ required: true, message: "字段名不能为空", trigger: "blur" }],
         displayAs: [
           { required: true, message: "显示名不能为空", trigger: "blur" }
         ],
-        wrapper: [{ required: true, message: "类型不能为空", trigger: "blur" }]
+        dataType: [{ required: true, message: "类型不能为空", trigger: "blur" }]
       }
     };
   },
   computed: {
-    ...mapGetters(["wrappers"])
+    ...mapGetters(["dataTypes", "loadDataType"])
   },
   methods: {
     list() {
       this.loading = true;
-      api.list(this.type.id).then(response => {
-        let that = this;
-        let data = response.data.body;
-        data.forEach(value => {
-          value.wrapperDisplay = that.findWrapperDisplay(value.wrapper);
-        });
-        this.data = data;
+      api.list(this.type.id).then(result => {
+        if (result.code === 1) {
+          let that = this;
+          let data = result.body;
+          data.forEach(value => {
+            value.dataTypeDisplay = that.findDataTypeDisplay(value.dataType);
+          });
+          this.data = data;
+        }
         this.loading = false;
       });
     },
-    findWrapperDisplay(wrapper) {
-      let tmp = this.wrappers.find(tmp => tmp.key === wrapper);
-      return tmp ? tmp.name : wrapper;
+    findDataTypeDisplay(dataTypeId) {
+      let dataType = this.loadDataType(dataTypeId);
+      return dataType ? dataType.displayAs : "";
+    },
+    changeDataType(dataTypeId) {
+      let dataType = this.loadDataType(dataTypeId);
+      this.form.widget = { ...dataType.widget };
     },
     remove(row) {
       if (row.superId && !row.override) {
@@ -220,12 +222,14 @@ export default {
         type: "warning"
       })
         .then(() => {
-          api.delete(row.id).then(response => {
-            this.list();
-            this.$message({
-              type: "success",
-              message: "删除成功!"
-            });
+          api.delete(row.id).then(result => {
+            if (result.code === 1) {
+              this.list();
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              });
+            }
           });
         })
         .catch(() => {
@@ -250,17 +254,17 @@ export default {
         if (form.superId) {
           form.override = true;
         }
-        api.createOrUpdate(form).then(response => {
-          this.showDialog = false;
-          this.list();
+        api.createOrUpdate(form).then(result => {
+          if (result.code === 1) {
+            this.showDialog = false;
+            this.list();
+          }
         });
       });
     },
     dialogClose() {
       this.$refs["form"].resetFields();
-      this.form = {
-        wrapper: "com.novice.framework.datamodel.wrapper.StringWrapper"
-      };
+      this.form = {};
     }
   },
   mounted() {

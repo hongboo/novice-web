@@ -1,7 +1,7 @@
 <template>
   <div style="margin-right:15px">
     <el-row class="item-title">设置列字段</el-row>
-    <el-row class="item-content border">
+    <el-row class="item-content border padding10">
       <el-checkbox-group v-model="rowFieldNames">
         <el-checkbox
           :label="item.name"
@@ -161,12 +161,10 @@
 </template>
 
 <script>
-import viewApi from "@/api/view";
-import fieldApi from "@/api/field";
+import { mapGetters } from "vuex";
 export default {
   name: "ListViewSetting",
   props: {
-    typeId: String,
     view: Object
   },
   data() {
@@ -186,6 +184,12 @@ export default {
       }
     };
   },
+  computed: {
+    ...mapGetters(["loadFields"]),
+    typeFields() {
+      return this.loadFields(this.view.typeId);
+    }
+  },
   watch: {
     view() {
       this.init();
@@ -196,10 +200,16 @@ export default {
     conditionFieldNames() {
       this.syncConditionFields();
     },
-    fields(value) {
+    typeFields(value) {
+      this.fields = value;
+      this.syncFields();
+    }
+  },
+  methods: {
+    syncFields() {
       let that = this;
       that.transferFieldsData = [];
-      value.forEach(field => {
+      this.fields.forEach(field => {
         that.transferFieldsData.push({
           key: field.name,
           label: field.displayAs
@@ -207,9 +217,7 @@ export default {
       });
       this.checkFieldNames("rowFieldNames");
       this.checkFieldNames("conditionFieldNames");
-    }
-  },
-  methods: {
+    },
     checkFieldNames(name) {
       if (!this[name] || this[name].length === 0) return;
       let tmpFieldNames = [...this[name]];
@@ -228,16 +236,7 @@ export default {
       }
     },
     getField(name) {
-      for (const key in this.fields) {
-        const element = this.fields[key];
-        if (name === element.name) return element;
-      }
-      return null;
-    },
-    getFields() {
-      fieldApi.list(this.typeId).then(res => {
-        this.fields = res.data.body;
-      });
+      return this.fields.find(field => field.name === name);
     },
     init() {
       this.view.conditionFields = this.view.conditionFields || [];
@@ -269,7 +268,8 @@ export default {
         let field = that.getField(fieldName);
         conditionFields.push({
           name: fieldName,
-          displayAs: field.displayAs
+          displayAs: field.displayAs,
+          searcher: field.widget.searcher
         });
       });
       this.view.conditionFields = conditionFields;
@@ -333,7 +333,8 @@ export default {
     }
   },
   created() {
-    this.getFields();
+    this.fields = this.typeFields;
+    this.syncFields();
     this.init();
   }
 };
@@ -344,6 +345,9 @@ export default {
   margin-bottom: 8px;
   font-size: 16px;
   border-bottom: 1px solid #edf1f9;
+}
+.padding10{
+  padding: 10px;
 }
 .item-content {
   margin-bottom: 13px;

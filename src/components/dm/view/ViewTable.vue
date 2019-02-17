@@ -120,12 +120,14 @@ export default {
         type: "warning"
       })
         .then(() => {
-          api.delete(row.id).then(response => {
-            this.$emit("list");
-            this.$message({
-              type: "success",
-              message: "删除成功!"
-            });
+          api.delete(row.id).then(result => {
+            if (result.code === 1) {
+              this.$emit("list");
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              });
+            }
           });
         })
         .catch(() => {
