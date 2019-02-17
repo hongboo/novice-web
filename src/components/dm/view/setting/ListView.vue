@@ -92,6 +92,7 @@
         status-icon
         :rules="formRowFieldRules"
         label-width="80px"
+        size="small"
       >
         <el-form-item
           label="字段名"
@@ -100,17 +101,13 @@
           <el-input
             v-model="formRowField.name"
             disabled
-            size="small"
           ></el-input>
         </el-form-item>
         <el-form-item
           label="显示名"
           prop="displayAs"
         >
-          <el-input
-            v-model="formRowField.displayAs"
-            size="small"
-          ></el-input>
+          <el-input v-model="formRowField.displayAs"></el-input>
         </el-form-item>
         <el-form-item
           label="动态宽度"
@@ -127,7 +124,6 @@
           prop="width"
         >
           <el-input-number
-            size="small"
             v-model="formRowField.width"
             controls-position="right"
             :min="1"
@@ -346,7 +342,7 @@ export default {
   font-size: 16px;
   border-bottom: 1px solid #edf1f9;
 }
-.padding10{
+.padding10 {
   padding: 10px;
 }
 .item-content {

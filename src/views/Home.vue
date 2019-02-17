@@ -72,7 +72,9 @@ export default {
   },
   methods: {
     ...mapActions(["loadMetaAsync", "executeBusiness"]),
-    handleSelect(key) {},
+    handleSelect(key) {
+      console.log(key);
+    },
     exceute() {
       if (this.businessName) {
         let paramsStr = this.paramsStr;

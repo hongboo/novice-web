@@ -14,10 +14,10 @@
 
 <style lang="less">
 @import url("//at.alicdn.com/t/font_831453_zrmsoqkf3ic.css");
-.el-header{
+.el-header {
   background-color: #f1f1f1;
 }
-.el-menu{
+.el-menu {
   height: 100%;
 }
 .border {
@@ -29,6 +29,12 @@
   margin-bottom: 7px;
   margin-left: 10px;
   font-size: larger;
+}
+.el-form-item {
+  margin-bottom: 15px !important;
+}
+.el-dialog__body {
+  padding: 10px 20px !important;
 }
 .el-dialog.el-dialog--center {
   box-shadow: #8b9c90 0px 2px 100px 5px;

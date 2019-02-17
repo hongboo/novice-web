@@ -14,7 +14,7 @@
       :label="column.text"
       :type="column.type"
     >
-      <template scope="scope">
+      <template slot-scope="scope">
         <span
           v-for="(space, levelIndex) in scope.row._level"
           class="ms-tree-space"

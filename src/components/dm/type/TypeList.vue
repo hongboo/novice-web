@@ -163,7 +163,6 @@
 <script>
 import api from "@/api/type";
 import utils from "@/util/TreeDataUtils";
-import Vue from "vue";
 import TreeGrid from "@/components/common/TreeGrid";
 import { mapActions } from "vuex";
 export default {

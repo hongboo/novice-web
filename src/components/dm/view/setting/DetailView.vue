@@ -108,7 +108,7 @@ export default {
     }
   },
   watch: {
-    typeFields(value) {
+    typeFields() {
       this.initWaitFields();
     }
   },

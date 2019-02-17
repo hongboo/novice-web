@@ -46,6 +46,7 @@
           <div
             v-if="field=getFieldFromItem(i,j)"
             class="bg-purple field-item"
+            @click="currentField=getFieldFromItem(i,j);widget={...currentField.widget};widgetShow = true;"
           >
             <el-col
               :span="12"
@@ -57,7 +58,7 @@
               plain
               circle
               size="mini"
-              @click="removeField(i,j)"
+              @click="removeField($event,i,j)"
             ></el-button>
           </div>
           <div
@@ -99,19 +100,50 @@
         >确 定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog
+      title="控件属性"
+      :visible.sync="widgetShow"
+      width="30%"
+      append-to-body
+      center
+    >
+      <widget
+        :widget="widget"
+        hiddenSearch
+        v-if="widgetShow"
+      ></widget>
+      <div
+        class="dialog-footer"
+        slot="footer"
+      >
+        <el-button
+          type="primary"
+          @click="currentField.widget=widget;widgetShow=false;"
+        >确 定</el-button>
+        <el-button @click="widgetShow = false">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import Widget from "@/components/dm/field/Widget";
 export default {
   name: "FieldSetSetting",
   props: {
     fieldSet: Object,
     waitFields: Array
   },
+  components: {
+    Widget
+  },
   data() {
     return {
       showAddFieldDialog: false,
+      widgetShow: false,
+      currentField: {},
+      widget: {},
       checkList: []
     };
   },
@@ -185,6 +217,9 @@ export default {
     }
   },
   methods: {
+    test() {
+      console.log(1);
+    },
     saveField() {
       let newSelected = [];
       this.checkList.forEach(name => {
@@ -217,7 +252,8 @@ export default {
       this.checkList = [];
       this.showAddFieldDialog = true;
     },
-    removeField(i, j) {
+    removeField(event, i, j) {
+      event.stopPropagation();
       let element = this.fieldSet.fields.find(
         field => field.rowNum === i && field.columnNum === j
       );
@@ -297,6 +333,7 @@ export default {
   .field-item {
     border-radius: 30px;
     text-align: right;
+    cursor: pointer;
     .field-item-title {
       text-align: right;
       height: 28px;

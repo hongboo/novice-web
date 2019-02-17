@@ -143,6 +143,19 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item
+          label="控件"
+          prop="widget"
+        >
+          <el-button
+            icon="el-icon-setting"
+            type="primary"
+            circle
+            plain
+            @click="widget={...form.widget};widgetShow = true;"
+            size="small"
+          ></el-button>
+        </el-form-item>
       </el-form>
       <div
         slot="footer"
@@ -153,16 +166,44 @@
           @click="createOrUpdateAction"
         >确 定</el-button>
         <el-button @click="showDialog = false">取 消</el-button>
+        <el-dialog
+          title="控件属性"
+          :visible.sync="widgetShow"
+          width="30%"
+          append-to-body
+          center
+        >
+          <widget
+            :widget="widget"
+            v-if="widgetShow"
+          ></widget>
+          <div
+            class="dialog-footer"
+            slot="footer"
+          >
+            <el-button
+              type="primary"
+              @click="form.widget=widget;widgetShow=false;"
+            >确 定</el-button>
+            <el-button @click="widgetShow = false">取 消</el-button>
+          </div>
+        </el-dialog>
       </div>
     </el-dialog>
+
   </div>
 </template>
 
 <script>
 import api from "@/api/field";
 import { mapGetters } from "vuex";
+import Widget from "./Widget";
+
 export default {
   name: "FieldList",
+  components: {
+    Widget
+  },
   props: {
     type: Object
   },
@@ -171,6 +212,8 @@ export default {
       data: [],
       loading: false,
       showDialog: false,
+      widgetShow: false,
+      widget: {},
       dialogTitle: "",
       form: {},
       rules: {

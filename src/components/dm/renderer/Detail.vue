@@ -104,7 +104,7 @@ export default {
         verify &= dm.validate();
         data[dm.name] = dm.getValue();
       });
-      console.log(data);
+      console.log(verify);
     }
   },
   created() {},
