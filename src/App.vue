@@ -14,6 +14,11 @@
 
 <style lang="less">
 @import url("//at.alicdn.com/t/font_831453_zrmsoqkf3ic.css");
+.dragging {
+  -ms-transform: scale(1.2);
+  transform: scale(1.2);
+  background-color: rgba(0,153,0,.1) !important;
+}
 .el-header {
   background-color: #f1f1f1;
 }

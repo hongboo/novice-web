@@ -6,6 +6,9 @@ import store from './store/index'
 import './assets/iconfont.css'
 import '@/components/dm/renderer/register';
 import '@/expend/register';
+import VueDND from 'awe-dnd';
+
+Vue.use(VueDND);
 
 Vue.config.productionTip = false
 

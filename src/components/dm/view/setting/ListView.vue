@@ -13,8 +13,9 @@
     <el-row class="item-content">
       <el-tag
         :style="`width:${item.width}%`"
-        v-for="(item,index) in view.rowFields"
-        :key="index"
+        v-for="item in view.rowFields"
+        :key="item.name"
+        v-dragging="{ item: item, list: view.rowFields, group: 'item' }"
         @click.native="updateRowField(item)"
       >{{item.displayAs}}</el-tag>
     </el-row>
@@ -332,7 +333,8 @@ export default {
     this.fields = this.typeFields;
     this.syncFields();
     this.init();
-  }
+  },
+  mounted() {}
 };
 </script>
 
@@ -350,7 +352,7 @@ export default {
   margin-left: 13px;
   .el-tag {
     text-align: center;
-    cursor: pointer;
+    cursor: move;
   }
   .el-form-item {
     margin-bottom: 9px;

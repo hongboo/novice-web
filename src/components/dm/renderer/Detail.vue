@@ -15,42 +15,33 @@
           v-if="fieldSet.border&&fieldSet.title"
         >{{fieldSet.title}}</div>
         <div class="content-box-wrapper">
-          <el-row
-            class="wrapper-row"
-            :gutter="30"
-            v-for="i in maxRowNum(fieldSet.fields)"
-            :key="i"
+          <grid-layout
+            :layout="layoutData=layout(fieldSet.fields)"
+            :colNum="fieldSet.rowSize"
+            :rowHeight="30"
+            :isResizable="false"
+            :isDraggable="false"
           >
-            <el-col
-              :span="24/fieldSet.rowSize"
-              v-for="j in fieldSet.rowSize"
-              :key="j"
+            <grid-item
+              v-for="item in layoutData"
+              :x="item.x"
+              :y="item.y"
+              :w="item.w"
+              :h="item.h"
+              :i="item.i"
+              :key="item.i"
             >
-              <div v-if="field=getFieldFromItem(fieldSet.fields,i,j)">
-                <component
-                  v-bind:is="field.widget.editor"
-                  :label="field.displayAs"
-                  :defaultValue="form[field.name]"
-                  :name="field.name"
-                  :allowBlank="field.widget.allowBlank"
-                  :readOnly="field.widget.readOnly"
-                  :ref="`dm-${field.name}`"
-                ></component>
-                <!-- <component
-                  v-bind:is="field.widget.editor"
-                  :defaultValue="form[field.name]"
-                  :name="field.name"
-                  :allowBlank="false"
-                  :readOnly="field.widget.readOnly"
-                  :ref="`dm-${field.name}`"
-                ></component> -->
-              </div>
-              <div
-                v-else
-                class="bg-default"
-              ></div>
-            </el-col>
-          </el-row>
+              <component
+                v-bind:is="item.widget.editor"
+                :label="item.displayAs"
+                :defaultValue="form[item.name]"
+                :name="item.name"
+                :allowBlank="item.widget.allowBlank"
+                :readOnly="item.widget.readOnly"
+                :ref="`dm-${item.name}`"
+              ></component>
+            </grid-item>
+          </grid-layout>
         </div>
       </div>
       <el-button
@@ -63,10 +54,15 @@
 </template>
 
 <script>
+import VueGridLayout from "vue-grid-layout";
 export default {
   name: "DetailRenderer",
   props: {
     business: Object
+  },
+  components: {
+    GridLayout: VueGridLayout.GridLayout,
+    GridItem: VueGridLayout.GridItem
   },
   data() {
     return {
@@ -75,17 +71,24 @@ export default {
   },
   computed: {},
   methods: {
-    maxRowNum(fields) {
-      var maxNum = 0;
-      fields.forEach(field => {
-        maxNum = Math.max(field.rowNum, maxNum);
-      });
-      return maxNum;
-    },
-    getFieldFromItem(fields, rowNum, columnNum) {
-      return fields.find(
-        element => element.rowNum === rowNum && element.columnNum === columnNum
+    layout(fields) {
+      let layout = [];
+      fields.forEach(field =>
+        layout.push(
+          Object.assign(
+            {
+              x: field.columnNum,
+              y: field.rowNum,
+              w: 1,
+              h: 1,
+              i: field.name,
+              field: field
+            },
+            { ...field }
+          )
+        )
       );
+      return layout;
     },
     getFieldComponents() {
       let dms = [];

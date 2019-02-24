@@ -2,6 +2,7 @@
   <div>
     <div>
       <el-row class="field-set-header">
+
         <el-col
           class="field-set-title"
           :span="6"
@@ -32,41 +33,41 @@
       </el-row>
     </div>
     <div class="field-set-content">
-      <el-row
-        :gutter="20"
-        v-for="i in maxRowNum"
-        :key="i"
-        class="field-row"
+
+      <grid-layout
+        :layout.sync="layout"
+        :colNum="rowSize"
+        :rowHeight="30"
+        :isResizable="false"
       >
-        <el-col
-          :span="24/fieldSet.rowSize"
-          v-for="j in fieldSet.rowSize"
-          :key="j"
+        <grid-item
+          v-for="item in layout"
+          :x="item.x"
+          :y="item.y"
+          :w="item.w"
+          :h="item.h"
+          :i="item.i"
+          :key="item.i"
+          @moved="layoutItemMoved"
         >
-          <div
-            v-if="field=getFieldFromItem(i,j)"
-            class="bg-purple field-item"
-            @click="currentField=getFieldFromItem(i,j);widget={...currentField.widget};widgetShow = true;"
-          >
-            <el-col
-              :span="12"
-              class="field-item-title"
-            >{{field.displayAs}}</el-col>
+          <div class="bg-purple field-item">
+            <el-button
+              type="text"
+              size="mini"
+              @click="updateField(item.i)"
+            > {{item.displayAs}} </el-button>
             <el-button
               type="info"
               icon="el-icon-close"
               plain
               circle
               size="mini"
-              @click="removeField($event,i,j)"
+              @click="removeField($event,item.x,item.y)"
             ></el-button>
           </div>
-          <div
-            v-else
-            class="bg-default"
-          ></div>
-        </el-col>
-      </el-row>
+        </grid-item>
+      </grid-layout>
+
     </div>
     <el-dialog
       title="选择字段"
@@ -129,6 +130,7 @@
 
 <script>
 import Widget from "@/components/dm/field/Widget";
+import VueGridLayout from "vue-grid-layout";
 export default {
   name: "FieldSetSetting",
   props: {
@@ -136,7 +138,9 @@ export default {
     waitFields: Array
   },
   components: {
-    Widget
+    Widget,
+    GridLayout: VueGridLayout.GridLayout,
+    GridItem: VueGridLayout.GridItem
   },
   data() {
     return {
@@ -144,19 +148,13 @@ export default {
       widgetShow: false,
       currentField: {},
       widget: {},
-      checkList: []
+      checkList: [],
+      layout: []
     };
   },
   computed: {
     selectedFields() {
       return this.fieldSet.fields;
-    },
-    maxRowNum() {
-      var maxNum = 0;
-      this.selectedFields.forEach(field => {
-        maxNum = Math.max(field.rowNum, maxNum);
-      });
-      return maxNum;
     },
     rowSize() {
       return this.fieldSet.rowSize;
@@ -176,9 +174,9 @@ export default {
       tmpSelectFields.forEach(field => {
         let tmpField = { ...field };
         column++;
-        if (field.columnNum > value) {
+        if (field.columnNum > value - 1) {
           change = true;
-          tmpField.columnNum = column % value || value;
+          tmpField.columnNum = (column % value || value) - 1;
           tmpField.rowNum +=
             (column % value ? column / value : (column - 1) / value) + 1;
         }
@@ -189,7 +187,7 @@ export default {
       }
     },
     selectedFields(value) {
-      let arr = ["01", "02", "03"];
+      let arr = [];
       var change = false;
       let selectedFields = [];
       let tmpSelectFields = [...value];
@@ -200,7 +198,7 @@ export default {
       );
       tmpSelectFields.forEach(field => {
         let beforeNumStr = field.rowNum - 1 + "" + field.columnNum;
-        if (arr.indexOf(beforeNumStr) > -1) {
+        if (arr.indexOf(beforeNumStr) > -1 || field.rowNum === 0) {
           selectedFields.push({ ...field });
           arr.push(field.rowNum + "" + field.columnNum);
         } else {
@@ -214,13 +212,43 @@ export default {
       if (change) {
         this.fieldSet.fields = selectedFields;
       }
+      this.initLayout();
     }
   },
   methods: {
-    test() {
-      console.log(1);
+    initLayout() {
+      let layout = [];
+      this.selectedFields.forEach(field =>
+        layout.push({
+          x: field.columnNum,
+          y: field.rowNum,
+          w: 1,
+          h: 1,
+          i: field.name,
+          displayAs: field.displayAs
+        })
+      );
+      this.layout = layout;
+    },
+    layoutItemMoved() {
+      let selectedFields = [];
+      this.layout.forEach(item => {
+        let field = this.selectedFields.find(tmp => tmp.name === item.i);
+        if (field) {
+          selectedFields.push(
+            Object.assign({ ...field }, { columnNum: item.x, rowNum: item.y })
+          );
+        }
+      });
+      this.fieldSet.fields = selectedFields;
+    },
+    updateField(name) {
+      this.currentField = this.selectedFields.find(tmp => tmp.name === name);
+      this.widget = { ...this.currentField.widget };
+      this.widgetShow = true;
     },
     saveField() {
+      if (this.checkList.length === 0) return;
       let newSelected = [];
       this.checkList.forEach(name => {
         let element = this.waitFields.find(field => field.name === name);
@@ -229,14 +257,14 @@ export default {
           newSelected.push({ ...element });
         }
       });
-      let maxField = this.getMaxField();
+      var maxField = this.getMaxField();
       let rowSize = this.fieldSet.rowSize;
-      var rowNum = maxField ? maxField.rowNum : 1;
+      var rowNum = maxField ? maxField.rowNum : 0;
       var columnNum = maxField ? maxField.columnNum : 0;
       let that = this;
       newSelected.forEach(field => {
-        let next = columnNum >= rowSize;
-        columnNum = next ? 1 : columnNum + 1;
+        let next = columnNum >= rowSize - 1;
+        columnNum = next ? 0 : columnNum + 1;
         rowNum = next ? rowNum + 1 : rowNum;
         that.fieldSet.fields.push({
           name: field.name,
@@ -252,18 +280,16 @@ export default {
       this.checkList = [];
       this.showAddFieldDialog = true;
     },
-    removeField(event, i, j) {
+    removeField(event, columnNum, rowNum) {
       event.stopPropagation();
-      let element = this.fieldSet.fields.find(
-        field => field.rowNum === i && field.columnNum === j
-      );
+      let element = this.getFieldFromItem(columnNum, rowNum);
       if (element) {
         this.fieldSet.fields.splice(this.fieldSet.fields.indexOf(element), 1);
         let field = this.waitFields.find(field => field.name === element.name);
         if (!field) this.waitFields.push(element);
       }
     },
-    getFieldFromItem(rowNum, columnNum) {
+    getFieldFromItem(columnNum, rowNum) {
       return this.selectedFields.find(
         element => element.rowNum === rowNum && element.columnNum === columnNum
       );
@@ -285,7 +311,9 @@ export default {
       return maxField;
     }
   },
-  created() {}
+  created() {
+    this.initLayout();
+  }
 };
 </script>
 <style lang="less" scoped>
@@ -333,12 +361,7 @@ export default {
   .field-item {
     border-radius: 30px;
     text-align: right;
-    cursor: pointer;
-    .field-item-title {
-      text-align: right;
-      height: 28px;
-      line-height: 28px;
-    }
+    cursor: move;
   }
 }
 </style>

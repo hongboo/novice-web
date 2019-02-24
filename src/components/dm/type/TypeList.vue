@@ -330,7 +330,7 @@ export default {
       delete type.children;
       delete type._parent;
       this.pushAdminTab({
-        key: "module-type-" + type.id,
+        key: "dm@module-type-" + type.id,
         name: type.displayAs,
         type: "typeSetting",
         selectType: type

@@ -22,6 +22,7 @@ export default {
     pushAdminTab: ({ commit }, newTab) => commit('pushAdminTab', newTab),
     removeAdminTab: ({ commit }, key) => commit('removeAdminTab', key),
     changeAdminSelectTab: ({ commit }, selectKey) => commit('changeAdminSelectTab', selectKey),
+    setAdminTabs: ({ commit }, tabs) => commit('setAdminTabs', tabs),
   },
   mutations: {
     pushAdminTab(state, newTab) {
@@ -53,6 +54,10 @@ export default {
     changeAdminSelectTab(state, selectKey) {
       state.adminSelectTab = selectKey;
       sessionStorage.setItem("adminSelectTab", selectKey);
+    },
+    setAdminTabs(state, tabs) {
+      state.adminTabs = tabs;
+      sessionStorage.setItem("adminTabs", JSON.stringify(state.adminTabs));
     }
   }
 }

@@ -220,7 +220,7 @@ export default {
     },
     editModule(row) {
       this.pushAdminTab({
-        key: "module-" + row.id,
+        key: "dm@module-" + row.id,
         name: row.displayAs,
         type: "typeList",
         module: { ...row }

@@ -105,10 +105,16 @@ export default {
     ...mapGetters(["loadFields"]),
     typeFields() {
       return this.loadFields(this.view.typeId);
+    },
+    fieldSets() {
+      return this.view.fieldSets;
     }
   },
   watch: {
     typeFields() {
+      this.initWaitFields();
+    },
+    fieldSets() {
       this.initWaitFields();
     }
   },
