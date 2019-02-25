@@ -128,16 +128,6 @@ export default {
   border: none;
   box-shadow: none;
 }
-.bg-default {
-  min-height: 1px;
-  background: #ffffff;
-}
-.wrapper-row {
-  margin-bottom: 18px;
-  &:last-child {
-    margin-bottom: 10px;
-  }
-}
 .dm-component {
   text-align: center;
 }

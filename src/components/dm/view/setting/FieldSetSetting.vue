@@ -320,10 +320,6 @@ export default {
 .bg-purple {
   background: #d3dce6;
 }
-.bg-default {
-  min-height: 28px;
-  background: #ffffff;
-}
 .dialog-div {
   height: 260px;
   overflow-y: auto;

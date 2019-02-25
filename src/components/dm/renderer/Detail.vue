@@ -18,7 +18,8 @@
           <grid-layout
             :layout="layoutData=layout(fieldSet.fields)"
             :colNum="fieldSet.rowSize"
-            :rowHeight="30"
+            :rowHeight="40"
+            :margin="[20, 15]"
             :isResizable="false"
             :isDraggable="false"
           >
