@@ -1,25 +1,26 @@
 <template>
   <div>
     <div class="panel-title">
-      {{business.title}}
+      {{ business.title }}
     </div>
     <div class="panel-body">
       <div
-        class="content-box"
-        :class="{'none-content-border': !fieldSet.border}"
-        v-for="(fieldSet,index) in business.view.fieldSets"
+        :class="{ 'content-box': fieldSet.border }"
+        v-for="(fieldSet, index) in business.view.fieldSets"
         :key="index"
       >
         <div
           class="content-box-header"
-          v-if="fieldSet.border&&fieldSet.title"
-        >{{fieldSet.title}}</div>
-        <div class="content-box-wrapper">
+          v-if="fieldSet.border && fieldSet.title"
+        >
+          {{ fieldSet.title }}
+        </div>
+        <div :class="{ 'content-box-wrapper': fieldSet.border }">
           <grid-layout
-            :layout="layoutData=layout(fieldSet.fields)"
+            :layout="(layoutData = layout(fieldSet.fields))"
             :colNum="fieldSet.rowSize"
-            :rowHeight="40"
-            :margin="[20, 15]"
+            :rowHeight="32"
+            :margin="[15, 14]"
             :isResizable="false"
             :isDraggable="false"
           >
@@ -45,17 +46,25 @@
           </grid-layout>
         </div>
       </div>
-      <el-button
-        type="primary"
-        @click="onSubmit"
-      >立即创建</el-button>
-      <el-button>取消</el-button>
+      <div class="operation-group">
+        <el-button
+          v-for="item in business.operations"
+          :type="item.level"
+          :plain="item.plain"
+          :round="item.round"
+          :key="item.id"
+          @click="execute(item)"
+          >{{ item.name }}</el-button
+        >
+        <el-button @click="cancel">取消</el-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import VueGridLayout from "vue-grid-layout";
+import { mapGetters, mapActions } from "vuex";
 export default {
   name: "DetailRenderer",
   props: {
@@ -67,11 +76,30 @@ export default {
   },
   data() {
     return {
-      form: {}
+      form: {},
+      entity: null
     };
   },
-  computed: {},
+  computed: {
+    ...mapGetters(["getEntity"])
+  },
   methods: {
+    ...mapActions(["executeBusiness", "executeAction"]),
+    refresh() {
+      let entityId = this.business.params.entityId;
+      if (entityId) {
+        this.entity = this.getEntity(entityId, this.business.typeId);
+        if (this.entity) {
+          this.form = { ...this.entity.properties };
+        }
+      }
+    },
+    back() {
+      console.log("back");
+    },
+    close() {
+      console.log("close");
+    },
     layout(fields) {
       let layout = [];
       fields.forEach(field =>
@@ -82,8 +110,7 @@ export default {
               y: field.rowNum,
               w: 1,
               h: 1,
-              i: field.name,
-              field: field
+              i: field.name
             },
             { ...field }
           )
@@ -100,19 +127,70 @@ export default {
       }
       return dms;
     },
-    onSubmit() {
+    execute(operation) {
       let dms = this.getFieldComponents();
-      let data = {};
+      let properties = {};
       var verify = true;
       dms.forEach(dm => {
-        verify &= dm.validate();
-        data[dm.name] = dm.getValue();
+        if (dm.validate()) {
+          properties[dm.name] = dm.getValue();
+        } else {
+          verify = false;
+        }
       });
-      console.log(verify);
+      if (!verify) return;
+      let that = this;
+      if (operation.type === "Action") {
+        this.executeAction({
+          name: operation.target,
+          typeId: this.business.typeId,
+          params: {
+            entityId: this.business.params.entityId,
+            properties: properties
+          },
+          callback: function(res) {
+            if (res.code === 1) {
+              switch (operation.callbackMode) {
+                case "Close":
+                  that.close();
+                  break;
+                case "Back":
+                  that.back();
+                  break;
+                case "Refresh":
+                  that.refresh();
+                  break;
+              }
+            } else {
+              that.$message({
+                type: "error",
+                message: res.description
+              });
+            }
+          }
+        });
+      } else if (operation.type === "Business") {
+        this.executeBusiness({
+          name: operation.target,
+          typeId: this.business.typeId,
+          params: {
+            entityId: this.business.params.entityId,
+            properties: properties
+          }
+        });
+      }
+    },
+    cancel() {
+      history.back();
     }
   },
   created() {},
-  mounted() {}
+  mounted() {
+    let that = this;
+    setTimeout(() => {
+      that.refresh();
+    }, 1);
+  }
 };
 </script>
 

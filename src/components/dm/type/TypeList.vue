@@ -131,7 +131,7 @@
           label="服务类"
           prop="service"
         >
-          <el-input v-model="form.server"></el-input>
+          <el-input v-model="form.service"></el-input>
         </el-form-item>
         <el-form-item
           label="描述"
@@ -211,10 +211,6 @@ export default {
         {
           text: "内部名称",
           dataIndex: "name"
-        },
-        {
-          text: "服务类",
-          dataIndex: "service"
         },
         {
           text: "描述",

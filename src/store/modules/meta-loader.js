@@ -5,7 +5,6 @@ const metaLoader = {
     modules: [],
     loadStatus: "none",
     dataTypes: [],
-    enums: {},
     currentBusiness: null,
     childBusinesses: []
   },
@@ -28,15 +27,24 @@ const metaLoader = {
       let type = metaLoader.getters.loadType(state)(typeId);
       return type ? type.fields : [];
     },
-    loadEnum: state => key => {
-      let en = state.enums[key];
-      if (en) return en;
-      let result = api.loadEnumSync(key);
-      if (result.code === 1) {
-        state.enums[key] = result.body;
-        return result.body;
+    loadViews: state => typeId => {
+      let type = metaLoader.getters.loadType(state)(typeId);
+      return type ? type.views : [];
+    },
+    loadActions: state => typeId => {
+      let type = metaLoader.getters.loadType(state)(typeId);
+      return type ? type.actions : [];
+    },
+    loadBusinesses: state => typeId => {
+      let type = metaLoader.getters.loadType(state)(typeId);
+      return type ? type.businesses : [];
+    },
+    getEntity: state => (entityId, typeId) => {
+      let res = api.executeActionSync(typeId, "view", { entityId: entityId });
+      if (res.code === 1) {
+        return res.body;
       }
-    }
+    },
   },
   actions: {
     loadMetaAsync: ({ commit }, needLoading) => {
@@ -54,20 +62,41 @@ const metaLoader = {
     },
     executeBusiness: ({ state, commit }, payload) => {
       // e.g : lms.Lawyer@create
-      let name = payload.name;
-      let params = payload.params;
-      let businessName = name.split("@")[1];
-      let type = metaLoader.getters.loadType(state)(name.split("@")[0]);
+      var typeIdOrName = payload.name.indexOf("@") !== -1 ? payload.name.split("@")[0] : payload.typeId;
+      var businessName = payload.name.indexOf("@") !== -1 ? payload.name.split("@")[1] : payload.name;
+
+      let type = metaLoader.getters.loadType(state)(typeIdOrName);
       if (type) {
         let business = type.businesses.find(business => business.name === businessName);
         if (business) {
           let view = business.viewName ? type.views.find(view => view.name === business.viewName) : null;
           let isPannel = !(view && view.windows);
-          commit(isPannel ? 'setCurrentBusiness' : 'addChildBusiness', Object.assign({ params: params, view: view }, business));
+          commit(isPannel ? 'setCurrentBusiness' : 'addChildBusiness', Object.assign({ params: payload.params, view: view }, business));
         } else {
           commit('setCurrentBusiness', null);
+          throw "business not found, name:" + type.name + "@" + businessName;
+        }
+      } else {
+        throw "type not found, typeIdOrName:" + typeIdOrName;
+      }
+    },
+    executeAction: (state, payload) => {
+      var typeId = payload.typeId;
+      var actionName = payload.name;
+      if (!typeId && payload.name.indexOf("@") !== -1) {
+        let typeName = payload.name.split("@")[0];
+        actionName = payload.name.split("@")[1];
+        let type = metaLoader.getters.loadType(state)(typeName);
+        if (type) {
+          typeId = type.id;
         }
       }
+      let callback = payload.callback;
+      delete payload.callback;
+      if (!typeId) throw { error: "type not found", data: payload };
+      return api.executeAction(typeId, actionName, payload.params).then(res => {
+        if (callback) callback(res);
+      });
     }
   },
   mutations: {

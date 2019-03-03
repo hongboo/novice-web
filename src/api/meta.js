@@ -7,7 +7,10 @@ export default {
     dataTypes: () => {
         return api.get({ url: '/meta/dataTypes' });
     },
-    loadEnumSync(key) {
-        return api.syncGet({ url: '/meta/' + key + '/enumValues' });
-    }
+    executeAction: (typeId, actionName, data) => {
+        return api.post({ url: `/action/${typeId}/${actionName}`, data: data });
+    },
+    executeActionSync: (typeId, actionName, data) => {
+        return api.syncAjax({ method: 'post', url: `/action/${typeId}/${actionName}`, data: data });
+    },
 }

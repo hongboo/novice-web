@@ -1,35 +1,24 @@
 <template>
-  <div
-    class="dm-component"
-    :class="{'required':!allowBlank,'error':!verify}"
-  >
+  <div class="dm-component" :class="{ required: !allowBlank, error: !verify }">
     <el-row :gutter="15">
-      <el-col
-        :span="6"
-        v-if="label"
-        class="dm-label"
-      >
-        {{label}}
+      <el-col :span="6" v-if="label" class="dm-label">
+        {{ label }}
       </el-col>
-      <el-col :span="label?18:24">
+      <el-col :span="label ? 18 : 24">
         <el-input
           v-model="value"
           :label="name"
           :disabled="readOnly"
-          :class="{'error':!validate}"
+          :class="{ error: !validate }"
+          size="small"
           @blur="validate"
         ></el-input>
-        <div
-          class="dm-error"
-          v-if="!verify"
-        >
-          {{error}}
+        <div class="dm-error" v-if="!verify">
+          {{ error }}
         </div>
       </el-col>
     </el-row>
-
   </div>
-
 </template>
 <script>
 export default {
@@ -60,6 +49,9 @@ export default {
       if (this.change) {
         this.change(this.value);
       }
+    },
+    defaultValue(val) {
+      this.value = val;
     }
   },
   methods: {

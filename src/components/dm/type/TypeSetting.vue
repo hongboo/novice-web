@@ -29,9 +29,7 @@
         label="动作设置"
         name="action"
       >
-        <el-row>
-          动作设置
-        </el-row>
+        <action-list :type="type"></action-list>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -41,12 +39,14 @@
 import FieldList from "@/components/dm/field/FieldList";
 import ViewList from "@/components/dm/view/ViewList";
 import BusinessList from "@/components/dm/business/BusinessList";
+import ActionList from "@/components/dm/action/ActionList";
 export default {
   name: "TypeSetting",
   components: {
     FieldList,
     ViewList,
-    BusinessList
+    BusinessList,
+    ActionList
   },
   props: {
     type: Object

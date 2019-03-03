@@ -183,7 +183,7 @@ export default {
 .ctx-menu {
   min-width: 125px !important;
   padding: unset;
-  background-color: #f1f1f1;
+  background-color: #fbfbfb;
   li {
     text-align: center;
     border-bottom: 1px solid #ccc;

@@ -1,5 +1,5 @@
 <template>
-  <el-container v-loading.fullscreen.lock="loadStatus==='loading'">
+  <el-container v-loading.fullscreen.lock="loadStatus === 'loading'">
     <el-header></el-header>
     <el-container>
       <el-aside width="200px">
@@ -14,7 +14,7 @@
             :key="menu.name"
           >
             <i :class="menu.icon"></i>
-            <span slot="title">{{menu.title}}</span>
+            <span slot="title">{{ menu.title }}</span>
           </el-menu-item>
         </el-menu>
       </el-aside>
@@ -27,7 +27,6 @@
       </el-main>
     </el-container>
   </el-container>
-
 </template>
 <script>
 import { mapGetters, mapActions } from "vuex";
@@ -108,7 +107,7 @@ export default {
   box-shadow: 2px 2px 3px #f1efef;
 }
 .content-box {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   border: 1px solid #e6e6e6;
   border-radius: 3px;
   box-shadow: 1px 1px 1px #f1efef;
@@ -117,35 +116,36 @@ export default {
   font-size: 16px;
   text-transform: uppercase;
   margin: -1px -1px 0;
-  padding: 10px;
+  padding: 8px;
   border: 1px solid #e6e6e6;
   border-radius: 3px;
 }
 .content-box-wrapper {
-  padding: 15px;
+  padding: 10px;
 }
-.none-content-border {
-  border: none;
-  box-shadow: none;
+.operation-group {
+  text-align: center;
+  margin-top: 8px;
+  margin-bottom: 4px;
 }
 .dm-component {
   text-align: center;
 }
 .dm-label {
-  line-height: 40px;
+  line-height: 32px;
   text-align: right;
   max-width: 85px;
 }
 .dm-component.required .dm-label:before {
   content: "*";
   color: #f56c6c;
-  margin-right: 4px;
+  margin-right: 3px;
 }
 .dm-error {
   color: #f56c6c;
-  font-size: 12px;
+  font-size: 10px;
   line-height: 1;
-  padding-top: 4px;
+  padding-top: 1px;
   top: 100%;
   text-align: left;
 }

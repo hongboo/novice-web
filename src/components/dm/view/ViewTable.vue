@@ -50,33 +50,35 @@
         label="操作"
       >
         <template slot-scope="scope">
-          <el-button
-            type="primary"
-            icon="el-icon-setting"
-            size="small"
-            title="设置视图"
-            circle
-            plain
-            @click="settingUpdate(scope.row)"
-          ></el-button>
-          <el-button
-            type="info"
-            icon="el-icon-edit"
-            size="small"
-            title="编辑"
-            circle
-            plain
-            @click="update(scope.row)"
-          ></el-button>
-          <el-button
-            type="danger"
-            icon="el-icon-delete"
-            title="删除"
-            size="small"
-            circle
-            plain
-            @click="remove(scope.row)"
-          ></el-button>
+          <el-button-group>
+            <el-button
+              type="primary"
+              icon="el-icon-setting"
+              size="small"
+              title="设置视图"
+              circle
+              plain
+              @click="settingUpdate(scope.row)"
+            ></el-button>
+            <el-button
+              type="info"
+              icon="el-icon-edit"
+              size="small"
+              title="编辑"
+              circle
+              plain
+              @click="update(scope.row)"
+            ></el-button>
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              title="删除"
+              size="small"
+              circle
+              plain
+              @click="remove(scope.row)"
+            ></el-button>
+          </el-button-group>
         </template>
       </el-table-column>
     </el-table>

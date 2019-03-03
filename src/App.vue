@@ -17,7 +17,7 @@
 .dragging {
   -ms-transform: scale(1.2);
   transform: scale(1.2);
-  background-color: rgba(0,153,0,.1) !important;
+  background-color: rgba(0, 153, 0, 0.1) !important;
 }
 .el-header {
   background-color: #f1f1f1;
@@ -35,9 +35,6 @@
   margin-left: 10px;
   font-size: larger;
 }
-.el-form-item {
-  margin-bottom: 15px !important;
-}
 .el-dialog__body {
   padding: 10px 20px !important;
 }
@@ -51,6 +48,9 @@ div.el-table--small {
 .icon-normal {
   color: rgb(16, 230, 16);
   font-size: 18px;
+}
+.el-form-item--small {
+  margin-bottom: 15px !important;
 }
 .icon-override {
   color: red;

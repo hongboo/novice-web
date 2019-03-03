@@ -74,24 +74,24 @@
         label="操作"
       >
         <template slot-scope="scope">
-          <el-button
-            type="primary"
-            icon="el-icon-edit"
-            title="编辑"
-            size="small"
-            circle
-            plain
-            @click="update(scope.row)"
-          ></el-button>
-          <el-button
-            type="danger"
-            icon="el-icon-delete"
-            title="删除"
-            size="small"
-            circle
-            plain
-            @click="remove(scope.row)"
-          ></el-button>
+          <el-button-group>
+            <el-button
+              type="primary"
+              icon="el-icon-edit"
+              title="编辑"
+              size="small"
+              plain
+              @click="update(scope.row)"
+            ></el-button>
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              title="删除"
+              size="small"
+              plain
+              @click="remove(scope.row)"
+            ></el-button>
+          </el-button-group>
         </template>
       </el-table-column>
     </el-table>

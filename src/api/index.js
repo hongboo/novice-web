@@ -45,13 +45,14 @@ post.interceptors.response.use(
   error => error
 );
 
-let syncGet = opts => {
+let syncAjax = opts => {
   var result;
   $.ajax({
     url: '/novice' + opts.url,
-    type: 'get',
+    type: opts.method || 'get',
     async: false,
-    data: opts.params,
+    data: opts.method === 'post' ? JSON.stringify(opts.data) : opts.data,
+    contentType: opts.method === 'post' ? 'application/json' : 'application/x-www-form-urlencoded',
     dataType: 'json',
     complete: function (data) {
       result = data.responseJSON;
@@ -67,5 +68,5 @@ let syncGet = opts => {
 }
 
 export default {
-  get, post, syncGet
+  get, post, syncAjax
 }

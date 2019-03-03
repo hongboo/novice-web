@@ -51,17 +51,18 @@
       width="260"
     >
       <template slot-scope="scope">
-        <el-button
-          v-for="(data,index) in operateData"
-          :type="data.type"
-          :icon="data.icon"
-          :size="size||'small'"
-          :title="data.title"
-          circle
-          plain
-          @click="$emit(data.methodName,scope.row)"
-          :key="index"
-        ></el-button>
+        <el-button-group>
+          <el-button
+            v-for="(data,index) in operateData"
+            :type="data.type"
+            :icon="data.icon"
+            :size="size||'small'"
+            :title="data.title"
+            plain
+            @click="$emit(data.methodName,scope.row)"
+            :key="index"
+          ></el-button>
+        </el-button-group>
       </template>
     </el-table-column>
   </el-table>
