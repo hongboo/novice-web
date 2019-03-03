@@ -49,7 +49,7 @@
       <div class="operation-group">
         <el-button
           v-for="item in business.operations"
-          :type="item.level"
+          :type="item.level.toLowerCase()"
           :plain="item.plain"
           :round="item.round"
           :key="item.id"
@@ -93,9 +93,6 @@ export default {
           this.form = { ...this.entity.properties };
         }
       }
-    },
-    back() {
-      console.log("back");
     },
     close() {
       console.log("close");
@@ -153,9 +150,6 @@ export default {
               switch (operation.callbackMode) {
                 case "Close":
                   that.close();
-                  break;
-                case "Back":
-                  that.back();
                   break;
                 case "Refresh":
                   that.refresh();

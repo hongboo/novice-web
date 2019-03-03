@@ -1,19 +1,17 @@
 <template>
   <div>
-    <el-row>
-      <el-col :span="6" class="table-operate" align="left">
-        <el-button
-          type="primary"
-          icon="el-icon-circle-plus"
-          size="small"
-          plain
-          @click="create"
-          >添加</el-button
-        >
-        <el-button icon="el-icon-refresh" plain @click="list" size="small"
-          >刷新</el-button
-        >
-      </el-col>
+    <el-row class="table-operate">
+      <el-button
+        type="primary"
+        icon="el-icon-circle-plus"
+        size="small"
+        plain
+        @click="create"
+        >添加</el-button
+      >
+      <el-button icon="el-icon-refresh" plain @click="list" size="small"
+        >刷新</el-button
+      >
     </el-row>
     <el-table
       size="small"
@@ -161,11 +159,22 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="初始动作" prop="initAction" align="left">
+          <el-select v-model="form.initAction" filterable clearable>
+            <el-option
+              v-for="item in actionList"
+              :key="item.name"
+              :value="item.name"
+              :label="item.displayAs"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="操作" prop="operations" align="left">
           <el-tag
             v-for="(operation, index) in form.operations"
             :key="index"
-            :type="operation.level"
+            :type="operation.level.toLowerCase()"
             closable
             @click.native="
               currentOperation = { ...operation };
@@ -175,7 +184,7 @@
             class="operation-tag"
             :class="{
               defaultOpe: operation.defaultOpe,
-              defaultLevel: operation.level === 'default'
+              defaultLevel: operation.level === 'Default'
             }"
             v-dragging="{
               item: operation,
@@ -255,12 +264,15 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["loadEnum", "loadViews", "enumDisplay"]),
+    ...mapGetters(["loadEnum", "loadViews", "loadActions", "enumDisplay"]),
     rendererList() {
       return this.loadEnum(this.rendererEnum);
     },
     viewList() {
       return this.loadViews(this.type.id);
+    },
+    actionList() {
+      return this.loadActions(this.type.id);
     },
     modelList() {
       return this.loadEnum(this.modeEnum);
@@ -280,7 +292,7 @@ export default {
       this.currentOperation = {
         type: "Action",
         callbackMode: "Close",
-        level: "primary",
+        level: "Primary",
         name: "",
         target: "",
         defaultOpe: false,

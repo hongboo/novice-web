@@ -60,5 +60,8 @@ div.el-table--small {
   color: yellow;
   font-size: 18px;
 }
+.table-operate {
+  margin-bottom: 10px;
+}
 </style>
 

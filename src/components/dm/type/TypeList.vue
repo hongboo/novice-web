@@ -1,64 +1,61 @@
 <template>
-
   <div>
     <el-row class="tab-title">
-      <el-col align="left">
-        {{module.name}} / {{module.displayAs}}
-      </el-col>
+      <el-col align="left"> {{ module.name }} / {{ module.displayAs }} </el-col>
     </el-row>
-    <el-row>
-      <el-col
-        class="table-operate"
-        align="left"
+    <el-row class="table-operate">
+      <el-button
+        type="primary"
+        size="small"
+        icon="el-icon-circle-plus"
+        plain
+        @click="
+          showDialog = true;
+          dialogTitle = '创建类型';
+        "
+        >添加</el-button
       >
-        <el-button
-          type="primary"
-          size="small"
-          icon="el-icon-circle-plus"
-          plain
-          @click="showDialog=true;dialogTitle='创建类型'"
-        >添加</el-button>
-        <el-button
-          icon="el-icon-refresh"
-          size="small"
-          plain
-          @click="list"
-        >刷新</el-button>
-        <el-button
-          icon="iconfont novice-icon-deploymentunit"
-          size="small"
-          type="info"
-          :plain="!subordinate"
-          @click="subordinate=true"
-        >主从</el-button>
-        <el-button
-          icon="iconfont novice-icon-apartment"
-          size="small"
-          type="info"
-          :plain="subordinate"
-          @click="subordinate=false"
-        >继承</el-button>
-        <el-button
-          v-if="!expandAll"
-          icon="iconfont novice-icon-colum-height"
-          size="small"
-          plain
-          @click="expandAll=true"
-        >展开</el-button>
-        <el-button
-          v-else
-          icon="iconfont novice-icon-vertical-align-middl"
-          size="small"
-          plain
-          @click="expandAll=false"
-        >收起</el-button>
-      </el-col>
+      <el-button icon="el-icon-refresh" size="small" plain @click="list"
+        >刷新</el-button
+      >
+      <el-button
+        icon="iconfont novice-icon-deploymentunit"
+        size="small"
+        type="info"
+        :plain="!subordinate"
+        @click="subordinate = true"
+        >主从</el-button
+      >
+      <el-button
+        icon="iconfont novice-icon-apartment"
+        size="small"
+        type="info"
+        :plain="subordinate"
+        @click="subordinate = false"
+        >继承</el-button
+      >
+      <el-button
+        v-if="!expandAll"
+        icon="iconfont novice-icon-colum-height"
+        size="small"
+        plain
+        @click="expandAll = true"
+        >展开</el-button
+      >
+      <el-button
+        v-else
+        icon="iconfont novice-icon-vertical-align-middl"
+        size="small"
+        plain
+        @click="expandAll = false"
+        >收起</el-button
+      >
     </el-row>
     <tree-grid
       v-loading="loading"
       double-click-name="addTab"
       :columns="treeColumns"
-      :data-source="subordinate?dataBySubordinate:dataByExtends"
+      :data-source="subordinate ? dataBySubordinate : dataByExtends"
       :operateData="operateData"
       :expand-all="expandAll"
       @remove="remove"
@@ -80,11 +77,7 @@
         status-icon
         label-width="80px"
       >
-        <el-form-item
-          label="从属"
-          prop="selectParentIds"
-          align="left"
-        >
+        <el-form-item label="从属" prop="selectParentIds" align="left">
           <el-cascader
             :options="dataBySubordinate"
             :props="typeSelectProps"
@@ -96,11 +89,7 @@
             expand-trigger="hover"
           ></el-cascader>
         </el-form-item>
-        <el-form-item
-          label="继承"
-          prop="selectSuperIds"
-          align="left"
-        >
+        <el-form-item label="继承" prop="selectSuperIds" align="left">
           <el-cascader
             :options="dataByExtends"
             :props="typeSelectProps"
@@ -112,52 +101,32 @@
             expand-trigger="hover"
           ></el-cascader>
         </el-form-item>
-        <el-form-item
-          label="内部名称"
-          prop="name"
-        >
-          <el-input
-            v-model="form.name"
-            :disabled="!!form.id"
-          ></el-input>
+        <el-form-item label="内部名称" prop="name">
+          <el-input v-model="form.name" :disabled="!!form.id"></el-input>
         </el-form-item>
-        <el-form-item
-          label="显示名称"
-          prop="displayAs"
-        >
+        <el-form-item label="显示名称" prop="displayAs">
           <el-input v-model="form.displayAs"></el-input>
         </el-form-item>
-        <el-form-item
-          label="服务类"
-          prop="service"
-        >
+        <el-form-item label="服务类" prop="service">
           <el-input v-model="form.service"></el-input>
         </el-form-item>
-        <el-form-item
-          label="描述"
-          prop="description"
-        >
+        <el-form-item label="描述" prop="description">
           <el-input
             v-model="form.description"
             type="textarea"
-            :autosize="{ minRows: 2, maxRows: 4}"
+            :autosize="{ minRows: 2, maxRows: 4 }"
             placeholder="请输入描述"
           ></el-input>
         </el-form-item>
       </el-form>
-      <div
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button
-          type="primary"
-          @click="createOrUpdateAction"
-        >确 定</el-button>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="createOrUpdateAction"
+          >确 定</el-button
+        >
         <el-button @click="showDialog = false">取 消</el-button>
       </div>
     </el-dialog>
   </div>
-
 </template>
 
 <script>
@@ -337,9 +306,6 @@ export default {
 </script>
 
 <style>
-.table-operate {
-  margin-bottom: 10px;
-}
 .custom-tree-node {
   flex: 1;
   display: flex;

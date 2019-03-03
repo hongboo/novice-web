@@ -80,7 +80,7 @@ const metaLoader = {
         throw "type not found, typeIdOrName:" + typeIdOrName;
       }
     },
-    executeAction: (state, payload) => {
+    executeAction: ({ state }, payload) => {
       var typeId = payload.typeId;
       var actionName = payload.name;
       if (!typeId && payload.name.indexOf("@") !== -1) {
@@ -94,7 +94,7 @@ const metaLoader = {
       let callback = payload.callback;
       delete payload.callback;
       if (!typeId) throw { error: "type not found", data: payload };
-      return api.executeAction(typeId, actionName, payload.params).then(res => {
+      return api.executeAction(typeId, actionName, payload.params||{}).then(res => {
         if (callback) callback(res);
       });
     }

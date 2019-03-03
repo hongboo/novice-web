@@ -1,31 +1,23 @@
 <template>
   <div class="view-warp">
-    <el-row>
-      <el-col
-        :span="6"
-        class="table-operate"
-        align="left"
+    <el-row class="table-operate">
+      <el-button
+        type="primary"
+        icon="el-icon-circle-plus"
+        size="small"
+        plain
+        @click="create"
+        >添加</el-button
       >
-        <el-button
-          type="primary"
-          icon="el-icon-circle-plus"
-          size="small"
-          plain
-          @click="create"
-        >添加</el-button>
-        <el-button
-          icon="el-icon-refresh"
-          plain
-          size="small"
-          @click="list"
-        >刷新</el-button>
-      </el-col>
+      <el-button icon="el-icon-refresh" plain size="small" @click="list"
+        >刷新</el-button
+      >
     </el-row>
     <el-collapse v-model="activeNames">
       <el-collapse-item
         :title="`${item.name}视图`"
         :name="item.key"
-        v-for="(item,index) in viewTypeList"
+        v-for="(item, index) in viewTypeList"
         :key="index"
       >
         <view-table
@@ -41,7 +33,7 @@
     </el-collapse>
 
     <el-dialog
-      :title="'Update'===action?'编辑视图':'创建视图'"
+      :title="'Update' === action ? '编辑视图' : '创建视图'"
       :visible.sync="showDialog"
       width="40%"
       center
@@ -53,15 +45,11 @@
         status-icon
         label-width="80px"
       >
-        <el-form-item
-          label="类型"
-          prop="viewType"
-          align="left"
-        >
+        <el-form-item label="类型" prop="viewType" align="left">
           <el-select
             v-model="form.viewType"
             filterable
-            :disabled="'Update'===action"
+            :disabled="'Update' === action"
           >
             <el-option
               v-for="item in viewTypeList"
@@ -72,41 +60,28 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="名称"
-          prop="name"
-        >
+        <el-form-item label="名称" prop="name">
           <el-input
             v-model="form.name"
-            :disabled="'Update'===action"
+            :disabled="'Update' === action"
           ></el-input>
         </el-form-item>
-        <el-form-item
-          label="显示名"
-          prop="displayAs"
-        >
+        <el-form-item label="显示名" prop="displayAs">
           <el-input v-model="form.displayAs"></el-input>
         </el-form-item>
-        <el-form-item
-          label="描述"
-          prop="description"
-        >
+        <el-form-item label="描述" prop="description">
           <el-input
             v-model="form.description"
             type="textarea"
-            :autosize="{ minRows: 2, maxRows: 4}"
+            :autosize="{ minRows: 2, maxRows: 4 }"
             placeholder="请输入描述"
           ></el-input>
         </el-form-item>
       </el-form>
-      <div
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button
-          type="primary"
-          @click="createOrUpdateAction"
-        >确 定</el-button>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="createOrUpdateAction"
+          >确 定</el-button
+        >
         <el-button @click="showDialog = false">取 消</el-button>
       </div>
     </el-dialog>
@@ -122,25 +97,18 @@
       <div class="dialog-div">
         <detail-view
           :view="form"
-          v-if="form.viewType==='Detail'"
+          v-if="form.viewType === 'Detail'"
         ></detail-view>
         <list-view
           :view="form"
-          v-else-if="form.viewType==='List'"
+          v-else-if="form.viewType === 'List'"
         ></list-view>
       </div>
-      <div
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button
-          type="primary"
-          @click="saveViewSetting"
-        >确 定</el-button>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="saveViewSetting">确 定</el-button>
         <el-button @click="showSettingDialog = false">取 消</el-button>
       </div>
     </el-dialog>
-
   </div>
 </template>
 

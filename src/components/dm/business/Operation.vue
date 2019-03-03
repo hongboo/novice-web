@@ -83,44 +83,22 @@ export default {
       typeTarget: {},
       operationTypeEnum: "com.novice.framework.datamodel.enums.OperationType",
       callbackModeEnum: "com.novice.framework.datamodel.enums.CallbackMode",
+      operationLevelEnum: "com.novice.framework.datamodel.enums.OperationLevel",
       rules: {
         name: [{ required: true, message: "名称不能为空", trigger: "blur" }],
         target: [
           { required: true, message: "执行内容不能为空", trigger: "change" }
         ]
       },
-      operationLevels: [
-        {
-          value: "default",
-          display: "默认"
-        },
-        {
-          value: "primary",
-          display: "主要"
-        },
-        {
-          value: "success",
-          display: "成功"
-        },
-        {
-          value: "info",
-          display: "信息"
-        },
-        {
-          value: "warning",
-          display: "警告"
-        },
-        {
-          value: "danger",
-          display: "危险"
-        }
-      ]
     };
   },
   computed: {
     ...mapGetters(["loadEnum", "enumDisplay", "loadType"]),
     operationTypes() {
       return this.loadEnum(this.operationTypeEnum);
+    },
+    operationLevels() {
+      return this.loadEnum(this.operationLevelEnum);
     },
     callbackModes() {
       return this.loadEnum(this.callbackModeEnum);
