@@ -9,10 +9,15 @@
           查询条件
         </div>
         <div class="content-box-wrapper">
-          <el-row :gutter="20" v-for="i in conditionFields.length / 2" :key="i">
+          <el-row
+            class="condition-row"
+            :gutter="20"
+            v-for="i in parseInt((conditionFields.length + 1) / 2)"
+            :key="i"
+          >
             <el-col
               :span="12"
-              v-for="j in conditionFields.length % 2 ? 1 : 2"
+              v-for="j in conditionFields.length / 2 > i ? 2 : 1"
               :key="j"
               :tmp="(field = conditionFields[2 * i + j - 3])"
             >
@@ -37,12 +42,14 @@
           :plain="item.plain"
           :round="item.round"
           :key="item.id"
-          :disabled="isDisabled(item)"
+          :disabled="!operationAvailable(item, selectRow)"
           size="small"
-          @click="execute(item)"
+          @click="executeOperation(item)"
           >{{ item.name }}</el-button
         >
-        <el-button icon="el-icon-refresh" plain size="small">刷新</el-button>
+        <el-button icon="el-icon-refresh" plain size="small" @click="refresh"
+          >刷新</el-button
+        >
       </el-row>
       <el-table
         size="small"
@@ -54,6 +61,7 @@
         max-height="600"
         style="width: 100%"
         ref="table"
+        @current-change="handleCurrentChange"
       >
         <el-table-column
           :label="field.displayAs"
@@ -72,11 +80,10 @@
 
 <script>
 import { mapActions } from "vuex";
+import Renderer from "./Renderer";
 export default {
+  extends: Renderer,
   name: "ListRenderer",
-  props: {
-    business: Object
-  },
   data() {
     return {
       data: [],
@@ -85,7 +92,6 @@ export default {
     };
   },
   computed: {
-    ...mapActions(["executeAction"]),
     conditionFields() {
       return this.business.view.conditionFields;
     },
@@ -94,41 +100,45 @@ export default {
     }
   },
   methods: {
-    isDisabled(operation) {
-      return !this.selectRow && false;
-    },
-    executeInitAction() {
-      if (!this.business.initAction) return;
-      //TODO this.executeAction({ name: "222" });
+    refresh() {
       let that = this;
-      this.$store.dispatch("executeAction", {
-        name: this.business.initAction,
-        typeId: this.business.typeId,
-        callback: function(res) {
-          if (res.code === 1) {
-            that.data = res.body;
-          }
+      this.executeInitAction({}, res => {
+        if (res.code === 1) {
+          that.data = res.body;
+          that.selectRow = null;
         }
       });
     },
+    getOperationParams() {
+      return this.selectRow ? { entityId: this.selectRow.id } : {};
+    },
+    handleCurrentChange(val) {
+      this.selectRow = val;
+    },
     adaptTableWidth() {
+      let that = this;
       let tableRef = this.$refs["table"];
       let scrollWidth = tableRef.$el.scrollWidth;
       this.rowFields.forEach(field => {
-        field.realWidth = (scrollWidth * field.width) / 100;
+        that.$set(field, "realWidth", (scrollWidth * field.width) / 100);
       });
     }
   },
-  created() {},
+  created() {
+    let that = this;
+    window.onresize = () => that.adaptTableWidth();
+  },
   mounted() {
     this.adaptTableWidth();
-    this.executeInitAction();
   }
 };
 </script>
 <style lang="less" scoped>
 .search-gourp {
   text-align: right;
+  margin-top: 10px;
+}
+.condition-row {
   margin-top: 10px;
 }
 </style>

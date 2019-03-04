@@ -27,23 +27,37 @@ const metaLoader = {
       let type = metaLoader.getters.loadType(state)(typeId);
       return type ? type.fields : [];
     },
+    loadField: state => (typeId, name) => {
+      let type = metaLoader.getters.loadType(state)(typeId);
+      return type ? type.fields.find(field => field.name === name) : null;
+    },
     loadViews: state => typeId => {
       let type = metaLoader.getters.loadType(state)(typeId);
       return type ? type.views : [];
+    },
+    loadView: state => (typeId, name) => {
+      let type = metaLoader.getters.loadType(state)(typeId);
+      return type ? type.views.find(view => view.name === name) : null;
     },
     loadActions: state => typeId => {
       let type = metaLoader.getters.loadType(state)(typeId);
       return type ? type.actions : [];
     },
+    loadAction: state => (typeId, name) => {
+      let type = metaLoader.getters.loadType(state)(typeId);
+      return type ? type.actions.find(action => action.name === name) : null;
+    },
     loadBusinesses: state => typeId => {
       let type = metaLoader.getters.loadType(state)(typeId);
       return type ? type.businesses : [];
     },
+    loadBusiness: state => (typeId, name) => {
+      let type = metaLoader.getters.loadType(state)(typeId);
+      return type ? type.businesses.find(business => business.name === name) : null;
+    },
     getEntity: state => (entityId, typeId) => {
       let res = api.executeActionSync(typeId, "view", { entityId: entityId });
-      if (res.code === 1) {
-        return res.body;
-      }
+      if (res.code === 1) return res.body;
     },
   },
   actions: {
@@ -71,7 +85,7 @@ const metaLoader = {
         if (business) {
           let view = business.viewName ? type.views.find(view => view.name === business.viewName) : null;
           let isPannel = !(view && view.windows);
-          commit(isPannel ? 'setCurrentBusiness' : 'addChildBusiness', Object.assign({ params: payload.params, view: view }, business));
+          commit(isPannel ? 'setCurrentBusiness' : 'addChildBusiness', Object.assign({ params: payload.params || {}, view: view }, business));
         } else {
           commit('setCurrentBusiness', null);
           throw "business not found, name:" + type.name + "@" + businessName;
@@ -94,7 +108,7 @@ const metaLoader = {
       let callback = payload.callback;
       delete payload.callback;
       if (!typeId) throw { error: "type not found", data: payload };
-      return api.executeAction(typeId, actionName, payload.params||{}).then(res => {
+      api.executeAction(typeId, actionName, payload.params).then(res => {
         if (callback) callback(res);
       });
     }

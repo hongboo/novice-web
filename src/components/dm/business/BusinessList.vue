@@ -81,7 +81,7 @@
               size="small"
               circle
               plain
-              :disabled="scope.row.model === 'Entity'"
+              :disabled="scope.row.mode === 'Entity'"
               @click="execute(scope.row)"
             ></el-button>
           </el-button-group>
@@ -119,10 +119,10 @@
             placeholder="请输入描述"
           ></el-input>
         </el-form-item>
-        <el-form-item label="模式" prop="model" align="left">
-          <el-select v-model="form.model">
+        <el-form-item label="模式" prop="mode" align="left">
+          <el-select v-model="form.mode">
             <el-option
-              v-for="item in modelList"
+              v-for="item in modeList"
               :key="item.value"
               :label="item.display"
               :value="item.value"
@@ -274,7 +274,7 @@ export default {
     actionList() {
       return this.loadActions(this.type.id);
     },
-    modelList() {
+    modeList() {
       return this.loadEnum(this.modeEnum);
     }
   },
