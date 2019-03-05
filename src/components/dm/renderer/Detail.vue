@@ -56,7 +56,7 @@
           @click="executeOperation(item)"
           >{{ item.name }}</el-button
         >
-        <el-button @click="cancel">取消</el-button>
+        <el-button @click="close">取消</el-button>
       </div>
     </div>
   </div>
@@ -84,11 +84,9 @@ export default {
       let entityId = this.business.params.entityId;
       if (entityId) {
         let that = this;
-        this.executeInitAction({ entityId: entityId }, res => {
-          if (res.code === 1) {
-            that.entity = res.body;
-            that.form = { ...that.entity.properties };
-          }
+        this.executeInitAction({ entityId: entityId }, data => {
+          that.entity = data;
+          that.form = { ...that.entity.properties };
         });
       }
     },

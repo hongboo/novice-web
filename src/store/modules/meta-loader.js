@@ -5,8 +5,11 @@ const metaLoader = {
     modules: [],
     loadStatus: "none",
     dataTypes: [],
+    urlExecute: true,
     currentBusiness: null,
-    childBusinesses: []
+    childBusinesses: [],
+    businessHashHistory: [],
+    backHashing: false,
   },
   getters: {
     modules: state => state.modules,
@@ -14,6 +17,7 @@ const metaLoader = {
     dataTypes: state => state.dataTypes,
     currentBusiness: state => state.currentBusiness,
     childBusinesses: state => state.childBusinesses,
+    urlExecute: state => state.urlExecute,
     loadDataType: state => dataTypeId => state.dataTypes.find(tmp => tmp.id === dataTypeId),
     loadType: state => typeIdOrName => {
       let modules = state.modules;
@@ -59,6 +63,13 @@ const metaLoader = {
       let res = api.executeActionSync(typeId, "view", { entityId: entityId });
       if (res.code === 1) return res.body;
     },
+    businessHashHistory: state => {
+      if (!state.businessHashHistory || state.businessHashHistory.length === 0) {
+        let businessHashHistoryStr = sessionStorage.getItem("businessHashHistory");
+        state.businessHashHistory = businessHashHistoryStr ? JSON.parse(businessHashHistoryStr) : [];
+      }
+      return state.businessHashHistory;
+    },
   },
   actions: {
     loadMetaAsync: ({ commit }, needLoading) => {
@@ -76,22 +87,36 @@ const metaLoader = {
     },
     executeBusiness: ({ state, commit }, payload) => {
       // e.g : lms.Lawyer@create
-      var typeIdOrName = payload.name.indexOf("@") !== -1 ? payload.name.split("@")[0] : payload.typeId;
-      var businessName = payload.name.indexOf("@") !== -1 ? payload.name.split("@")[1] : payload.name;
-
+      let name = payload.name;
+      var typeIdOrName = payload.typeId;
+      var businessName = name;
+      if (name.indexOf("@") !== -1) {
+        typeIdOrName = name.split("@")[0];
+        businessName = name.split("@")[1];
+      }
       let type = metaLoader.getters.loadType(state)(typeIdOrName);
       if (type) {
         let business = type.businesses.find(business => business.name === businessName);
         if (business) {
           let view = business.viewName ? type.views.find(view => view.name === business.viewName) : null;
           let isPannel = !(view && view.windows);
-          commit(isPannel ? 'setCurrentBusiness' : 'addChildBusiness', Object.assign({ params: payload.params || {}, view: view }, business));
+          if (isPannel) {
+            state.urlExecute = false;
+            let hash = `#/?business=${encodeURIComponent(`${type.name}@${businessName}`)}`;
+            if (payload.params) hash += "&params=" + encodeURIComponent(JSON.stringify(payload.params));
+            if (!state.backHashing && location.hash !== hash) {
+              commit('pushBusinessHash', location.hash);
+            }
+            location.hash = hash;
+          }
+          let businessWrapper = Object.assign({ params: payload.params || {}, callback: payload.callback, view: view }, business);
+          commit(isPannel ? 'setCurrentBusiness' : 'addChildBusiness', businessWrapper);
         } else {
           commit('setCurrentBusiness', null);
-          throw "business not found, name:" + type.name + "@" + businessName;
+          throw `business not found, name:${type.name}@${businessName}`;
         }
       } else {
-        throw "type not found, typeIdOrName:" + typeIdOrName;
+        throw `type not found, typeIdOrName:${typeIdOrName}`;
       }
     },
     executeAction: ({ state }, payload) => {
@@ -109,9 +134,25 @@ const metaLoader = {
       delete payload.callback;
       if (!typeId) throw { error: "type not found", data: payload };
       api.executeAction(typeId, actionName, payload.params).then(res => {
-        if (callback) callback(res);
+        if (callback && res.code === 1) callback(res.body);
       });
-    }
+    },
+    reOpenUrlExecute: ({ commit }) => {
+      commit('setUrlExecute', true);
+    },
+    completeBackHashing: ({ commit }) => {
+      commit('setBackHashing', false);
+    },
+    backBusinessHash: ({ state }) => {
+      let businessHashHistory = metaLoader.getters.businessHashHistory(state);
+      let before = businessHashHistory.pop();
+      if (before) {
+        state.backHashing = true;
+        location.hash = before;
+      } else {
+        history.back();
+      }
+    },
   },
   mutations: {
     changeLoadStatus(state, status) {
@@ -128,6 +169,17 @@ const metaLoader = {
     },
     addChildBusiness(state, business) {
       state.childBusiness.push(business);
+    },
+    setUrlExecute(state, flag) {
+      state.urlExecute = flag;
+    },
+    setBackHashing(state, flag) {
+      state.backHashing = flag;
+    },
+    pushBusinessHash(state, hash) {
+      let businessHashHistory = metaLoader.getters.businessHashHistory(state);
+      businessHashHistory.push(hash);
+      sessionStorage.setItem("businessHashHistory", JSON.stringify(businessHashHistory));
     },
   }
 }

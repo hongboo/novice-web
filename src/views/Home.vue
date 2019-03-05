@@ -53,7 +53,12 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["loadStatus", "currentBusiness", "childBusinesses"]),
+    ...mapGetters([
+      "loadStatus",
+      "currentBusiness",
+      "childBusinesses",
+      "urlExecute"
+    ]),
     businessName() {
       return this.$route.query.business;
     },
@@ -75,9 +80,9 @@ export default {
       console.log(key);
     },
     exceute() {
-      if (this.businessName) {
+      if (this.businessName && this.urlExecute) {
         let paramsStr = this.paramsStr;
-        let params = paramsStr ? JSON.parse(paramsStr) : {};
+        let params = paramsStr ? JSON.parse(paramsStr) : null;
         this.executeBusiness({ name: this.businessName, params: params });
       }
     }
@@ -134,7 +139,6 @@ export default {
 .dm-label {
   line-height: 32px;
   text-align: right;
-  max-width: 85px;
 }
 .dm-component.required .dm-label:before {
   content: "*";

@@ -1,12 +1,12 @@
 <template>
-  <div>ViewRenderer</div>
+  <div>TmpRenderer</div>
 </template>
 
 <script>
 import Renderer from "./Renderer";
 export default {
   extends: Renderer,
-  name: "ViewRenderer",
+  name: "TmpRenderer",
   data() {
     return {};
   },

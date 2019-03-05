@@ -62,6 +62,7 @@
         style="width: 100%"
         ref="table"
         @current-change="handleCurrentChange"
+        @row-dblclick="dblclick"
       >
         <el-table-column
           :label="field.displayAs"
@@ -79,7 +80,6 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
 import Renderer from "./Renderer";
 export default {
   extends: Renderer,
@@ -102,18 +102,20 @@ export default {
   methods: {
     refresh() {
       let that = this;
-      this.executeInitAction({}, res => {
-        if (res.code === 1) {
-          that.data = res.body;
-          that.selectRow = null;
-        }
+      this.executeInitAction({}, data => {
+        that.data = data;
+        that.selectRow = null;
       });
     },
     getOperationParams() {
-      return this.selectRow ? { entityId: this.selectRow.id } : {};
+      return this.selectRow ? { entityId: this.selectRow.id } : null;
     },
     handleCurrentChange(val) {
       this.selectRow = val;
+    },
+    dblclick(row) {
+      this.selectRow = row;
+      this.executeDefaultOperation();
     },
     adaptTableWidth() {
       let that = this;

@@ -13,7 +13,10 @@ export default {
     return {};
   },
   computed: {
-    ...mapGetters(["loadBusiness", "loadAction"])
+    ...mapGetters(["loadBusiness", "loadAction"]),
+    isPannel() {
+      return !(this.business.view && this.business.view.windows);
+    }
   },
   watch: {
     business() {
@@ -21,15 +24,23 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["executeBusiness", "executeAction"]),
+    ...mapActions([
+      "executeBusiness",
+      "executeAction",
+      "reOpenUrlExecute",
+      "completeBackHashing",
+      "backBusinessHash"
+    ]),
+    getOperationParams() {},
     refresh() {
       console.log("refresh");
     },
     close() {
-      console.log("close");
-    },
-    cancel() {
-      console.log("cancel");
+      if (this.isPannel) {
+        this.backBusinessHash();
+      } else {
+        console.log("close window");
+      }
     },
     executeInitAction(params = {}, callback) {
       if (!this.business.initAction) return;
@@ -40,27 +51,23 @@ export default {
         callback: callback
       });
     },
-    getOperationParams() {},
+    executeDefaultOperation() {
+      let defaultOpe = this.business.operations.find(ope => ope.defaultOpe);
+      if (defaultOpe) this.executeOperation(defaultOpe);
+    },
     executeOperation(operation) {
       let that = this;
       let data = {
         name: operation.target,
         typeId: this.business.typeId,
-        callback: res => {
-          if (res.code === 1) {
-            switch (operation.callbackMode) {
-              case "Close":
-                that.close();
-                break;
-              case "Refresh":
-                that.refresh();
-                break;
-            }
-          } else {
-            that.$message({
-              type: "error",
-              message: res.description
-            });
+        callback: data => {
+          switch (operation.callbackMode) {
+            case "Close":
+              that.close();
+              break;
+            case "Refresh":
+              that.refresh();
+              break;
           }
         }
       };
@@ -95,7 +102,10 @@ export default {
   created() {
     this.refresh();
   },
-  mounted() {}
+  mounted() {
+    this.reOpenUrlExecute();
+    this.completeBackHashing();
+  }
 };
 </script>
 
