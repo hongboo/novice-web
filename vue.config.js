@@ -17,7 +17,7 @@ module.exports = {
   devServer: {
     // 配置服务器代理
     host: '0.0.0.0',
-    port: 9000,
+    port: 8080,
     disableHostCheck: true,
     proxy: proxyConfig
   },
