@@ -1,4 +1,4 @@
-# novice-web
+# novice-web  dev
 
 ## Project setup
 ```
